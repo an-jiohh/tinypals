@@ -15,6 +15,7 @@ import {
   getWindowBounds
 } from "./windowService";
 import {
+  createProgrammaticBoundsSuppressor,
   createResizeRequestQueue,
   getSettingsResizeBounds
 } from "./windowResize";
@@ -28,6 +29,7 @@ let petWindow: BrowserWindow | undefined;
 let tray: Tray | undefined;
 
 const store = createSettingsStore(app.getPath("userData"), getPrimaryDisplayBounds);
+const programmaticBoundsSuppressor = createProgrammaticBoundsSuppressor();
 const resizeRequestQueue = createResizeRequestQueue<ResizeWindowPayload, AppSettings>(
   () => store.load(),
   async (payload, isLatest) => {
@@ -53,7 +55,7 @@ const resizeRequestQueue = createResizeRequestQueue<ResizeWindowPayload, AppSett
     }
 
     if (petWindow && !petWindow.isDestroyed()) {
-      petWindow.setBounds(settings.windowBounds);
+      applyProgrammaticBounds(settings.windowBounds);
     }
 
     return settings;
@@ -154,6 +156,15 @@ async function persistWindowBounds(): Promise<void> {
   await store.saveWindowBounds(getWindowBounds(petWindow));
 }
 
+function applyProgrammaticBounds(bounds: WindowBounds): void {
+  if (!petWindow || petWindow.isDestroyed()) {
+    return;
+  }
+
+  programmaticBoundsSuppressor.suppressNext(bounds);
+  petWindow.setBounds(bounds);
+}
+
 async function createWindow(): Promise<void> {
   const settings = await store.load();
   petWindow = createPetWindow(settings);
@@ -162,6 +173,14 @@ async function createWindow(): Promise<void> {
     void persistWindowBounds();
   });
   petWindow.on("resized", () => {
+    if (
+      petWindow &&
+      !petWindow.isDestroyed() &&
+      programmaticBoundsSuppressor.shouldSuppress(getWindowBounds(petWindow))
+    ) {
+      return;
+    }
+
     void persistWindowBounds();
   });
   petWindow.once("ready-to-show", () => {
@@ -213,7 +232,7 @@ function registerIpc(): void {
       y: defaultBounds.y
     });
 
-    petWindow?.setBounds(settings.windowBounds);
+    applyProgrammaticBounds(settings.windowBounds);
     return settings;
   });
 

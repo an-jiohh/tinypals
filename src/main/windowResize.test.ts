@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   SETTINGS_WINDOW_MAX_SIZE,
+  createProgrammaticBoundsSuppressor,
   createResizeRequestQueue,
   getRuntimeWindowBounds,
   getSettingsResizeBounds
@@ -92,5 +93,23 @@ describe("getSettingsResizeBounds", () => {
     await expect(first).resolves.toBe("stale");
     await expect(second).resolves.toBe("applied-2");
     expect(appliedRequestIds).toEqual([2]);
+  });
+
+  it("suppresses only the next matching programmatic bounds event", () => {
+    const suppressor = createProgrammaticBoundsSuppressor();
+    const programmaticBounds: WindowBounds = {
+      x: 20,
+      y: 30,
+      width: 220,
+      height: 240
+    };
+
+    suppressor.suppressNext(programmaticBounds);
+
+    expect(
+      suppressor.shouldSuppress({ x: 20, y: 30, width: 96, height: 96 })
+    ).toBe(false);
+    expect(suppressor.shouldSuppress(programmaticBounds)).toBe(true);
+    expect(suppressor.shouldSuppress(programmaticBounds)).toBe(false);
   });
 });

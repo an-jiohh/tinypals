@@ -21,6 +21,29 @@ export type ResizeRequestQueue<TPayload extends ResizePayload, TResult> = {
   enqueue(payload: TPayload): Promise<TResult>;
 };
 
+export type ProgrammaticBoundsSuppressor = {
+  suppressNext(bounds: WindowBounds): void;
+  shouldSuppress(bounds: WindowBounds): boolean;
+};
+
+export function createProgrammaticBoundsSuppressor(): ProgrammaticBoundsSuppressor {
+  let nextSuppressedBounds: WindowBounds | undefined;
+
+  return {
+    suppressNext(bounds: WindowBounds): void {
+      nextSuppressedBounds = { ...bounds };
+    },
+    shouldSuppress(bounds: WindowBounds): boolean {
+      if (!nextSuppressedBounds || !isSameBounds(bounds, nextSuppressedBounds)) {
+        return false;
+      }
+
+      nextSuppressedBounds = undefined;
+      return true;
+    }
+  };
+}
+
 export function createResizeRequestQueue<TPayload extends ResizePayload, TResult>(
   loadCurrent: () => Promise<TResult>,
   applyLatest: ResizeApply<TPayload, TResult>
@@ -125,4 +148,13 @@ function clampPosition(value: number, min: number, max: number): number {
   }
 
   return clamp(value, min, max);
+}
+
+function isSameBounds(first: WindowBounds, second: WindowBounds): boolean {
+  return (
+    first.x === second.x &&
+    first.y === second.y &&
+    first.width === second.width &&
+    first.height === second.height
+  );
 }
