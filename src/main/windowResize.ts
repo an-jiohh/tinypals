@@ -17,28 +17,43 @@ type ResizeApply<TPayload extends ResizePayload, TResult> = (
   isLatest: () => boolean
 ) => Promise<TResult>;
 
+export type ProgrammaticBoundsEvent = "moved" | "resized";
+
 export type ResizeRequestQueue<TPayload extends ResizePayload, TResult> = {
   enqueue(payload: TPayload): Promise<TResult>;
 };
 
 export type ProgrammaticBoundsSuppressor = {
   suppressNext(bounds: WindowBounds): void;
-  shouldSuppress(bounds: WindowBounds): boolean;
+  shouldSuppress(event: ProgrammaticBoundsEvent, bounds: WindowBounds): boolean;
 };
 
 export function createProgrammaticBoundsSuppressor(): ProgrammaticBoundsSuppressor {
-  let nextSuppressedBounds: WindowBounds | undefined;
+  let nextSuppressedBoundsByEvent = new Map<
+    ProgrammaticBoundsEvent,
+    WindowBounds
+  >();
 
   return {
     suppressNext(bounds: WindowBounds): void {
-      nextSuppressedBounds = { ...bounds };
+      nextSuppressedBoundsByEvent = new Map([
+        ["moved", { ...bounds }],
+        ["resized", { ...bounds }]
+      ]);
     },
-    shouldSuppress(bounds: WindowBounds): boolean {
-      if (!nextSuppressedBounds || !isSameBounds(bounds, nextSuppressedBounds)) {
+    shouldSuppress(event: ProgrammaticBoundsEvent, bounds: WindowBounds): boolean {
+      const nextSuppressedBounds = nextSuppressedBoundsByEvent.get(event);
+
+      if (!nextSuppressedBounds) {
         return false;
       }
 
-      nextSuppressedBounds = undefined;
+      nextSuppressedBoundsByEvent.delete(event);
+
+      if (!isSameBounds(bounds, nextSuppressedBounds)) {
+        return false;
+      }
+
       return true;
     }
   };

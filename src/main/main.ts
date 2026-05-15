@@ -48,17 +48,16 @@ const resizeRequestQueue = createResizeRequestQueue<ResizeWindowPayload, AppSett
       return store.load();
     }
 
-    const settings = await store.saveWindowBounds(nextBounds);
-
-    if (!isLatest()) {
-      return store.load();
-    }
-
+    // Programmatic open/close resizing is runtime-only so stale resize requests
+    // cannot overwrite persisted drag/reset bounds.
     if (petWindow && !petWindow.isDestroyed()) {
-      applyProgrammaticBounds(settings.windowBounds);
+      applyProgrammaticBounds(nextBounds);
     }
 
-    return settings;
+    return {
+      ...currentSettings,
+      windowBounds: nextBounds
+    };
   }
 );
 
@@ -170,13 +169,27 @@ async function createWindow(): Promise<void> {
   petWindow = createPetWindow(settings);
 
   petWindow.on("moved", () => {
+    if (
+      petWindow &&
+      !petWindow.isDestroyed() &&
+      programmaticBoundsSuppressor.shouldSuppress(
+        "moved",
+        getWindowBounds(petWindow)
+      )
+    ) {
+      return;
+    }
+
     void persistWindowBounds();
   });
   petWindow.on("resized", () => {
     if (
       petWindow &&
       !petWindow.isDestroyed() &&
-      programmaticBoundsSuppressor.shouldSuppress(getWindowBounds(petWindow))
+      programmaticBoundsSuppressor.shouldSuppress(
+        "resized",
+        getWindowBounds(petWindow)
+      )
     ) {
       return;
     }

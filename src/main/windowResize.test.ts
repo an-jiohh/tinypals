@@ -95,7 +95,7 @@ describe("getSettingsResizeBounds", () => {
     expect(appliedRequestIds).toEqual([2]);
   });
 
-  it("suppresses only the next matching programmatic bounds event", () => {
+  it("suppresses the matching moved and resized events from one programmatic bounds update", () => {
     const suppressor = createProgrammaticBoundsSuppressor();
     const programmaticBounds: WindowBounds = {
       x: 20,
@@ -107,9 +107,21 @@ describe("getSettingsResizeBounds", () => {
     suppressor.suppressNext(programmaticBounds);
 
     expect(
-      suppressor.shouldSuppress({ x: 20, y: 30, width: 96, height: 96 })
+      suppressor.shouldSuppress("moved", {
+        x: 20,
+        y: 30,
+        width: 96,
+        height: 96
+      })
     ).toBe(false);
-    expect(suppressor.shouldSuppress(programmaticBounds)).toBe(true);
-    expect(suppressor.shouldSuppress(programmaticBounds)).toBe(false);
+    expect(suppressor.shouldSuppress("moved", programmaticBounds)).toBe(false);
+    expect(suppressor.shouldSuppress("resized", programmaticBounds)).toBe(true);
+
+    suppressor.suppressNext(programmaticBounds);
+
+    expect(suppressor.shouldSuppress("moved", programmaticBounds)).toBe(true);
+    expect(suppressor.shouldSuppress("resized", programmaticBounds)).toBe(true);
+    expect(suppressor.shouldSuppress("moved", programmaticBounds)).toBe(false);
+    expect(suppressor.shouldSuppress("resized", programmaticBounds)).toBe(false);
   });
 });
