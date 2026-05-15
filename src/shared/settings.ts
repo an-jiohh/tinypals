@@ -1,15 +1,9 @@
 import type { AppSettings, DisplayBounds, WindowBounds } from "./types";
 
-const DEFAULT_MARGIN = 24;
-const DEFAULT_WINDOW_SIZE = 96;
-const MIN_WINDOW_SIZE = 72;
-const MAX_WINDOW_SIZE = 180;
-
-export type SettingsInput = Partial<
-  Omit<AppSettings, "windowBounds"> & {
-    windowBounds: Partial<WindowBounds>;
-  }
->;
+export const PET_WINDOW_MIN_SIZE = 72;
+export const PET_WINDOW_DEFAULT_SIZE = 96;
+export const PET_WINDOW_MAX_SIZE = 180;
+export const PET_WINDOW_MARGIN = 24;
 
 export const DEFAULT_SETTINGS: AppSettings = {
   windowBounds: { x: 24, y: 24, width: 96, height: 96 },
@@ -20,45 +14,54 @@ export const DEFAULT_SETTINGS: AppSettings = {
 
 export function getDefaultWindowBounds(display: DisplayBounds): WindowBounds {
   return {
-    x: display.x + DEFAULT_MARGIN,
-    y: display.y + DEFAULT_MARGIN,
-    width: DEFAULT_WINDOW_SIZE,
-    height: DEFAULT_WINDOW_SIZE
+    x: display.x + PET_WINDOW_MARGIN,
+    y: display.y + PET_WINDOW_MARGIN,
+    width: PET_WINDOW_DEFAULT_SIZE,
+    height: PET_WINDOW_DEFAULT_SIZE
   };
 }
 
-export function normalizeSettings(input: SettingsInput, display: DisplayBounds): AppSettings {
+export function normalizeWindowBounds(
+  bounds: WindowBounds | undefined,
+  display: DisplayBounds
+): WindowBounds {
   const defaultBounds = getDefaultWindowBounds(display);
   const mergedBounds = {
     ...defaultBounds,
-    ...input.windowBounds
+    ...bounds
   };
 
   const width = clampSize(mergedBounds.width);
   const height = clampSize(mergedBounds.height);
-  const bounds = {
+  const normalizedBounds = {
     x: mergedBounds.x,
     y: mergedBounds.y,
     width,
     height
   };
 
-  if (!isWithinDisplay(bounds, display)) {
-    bounds.x = defaultBounds.x;
-    bounds.y = defaultBounds.y;
+  if (!isWithinDisplay(normalizedBounds, display)) {
+    return defaultBounds;
   }
 
+  return normalizedBounds;
+}
+
+export function normalizeSettings(
+  input: Partial<AppSettings> | undefined,
+  display: DisplayBounds
+): AppSettings {
   return {
     ...DEFAULT_SETTINGS,
-    alwaysOnTop: input.alwaysOnTop ?? DEFAULT_SETTINGS.alwaysOnTop,
-    launchAtLogin: input.launchAtLogin ?? DEFAULT_SETTINGS.launchAtLogin,
-    selectedAssetPack: input.selectedAssetPack ?? DEFAULT_SETTINGS.selectedAssetPack,
-    windowBounds: bounds
+    alwaysOnTop: input?.alwaysOnTop ?? DEFAULT_SETTINGS.alwaysOnTop,
+    launchAtLogin: input?.launchAtLogin ?? DEFAULT_SETTINGS.launchAtLogin,
+    selectedAssetPack: input?.selectedAssetPack ?? DEFAULT_SETTINGS.selectedAssetPack,
+    windowBounds: normalizeWindowBounds(input?.windowBounds, display)
   };
 }
 
 function clampSize(size: number): number {
-  return Math.min(MAX_WINDOW_SIZE, Math.max(MIN_WINDOW_SIZE, size));
+  return Math.min(PET_WINDOW_MAX_SIZE, Math.max(PET_WINDOW_MIN_SIZE, size));
 }
 
 function isWithinDisplay(bounds: WindowBounds, display: DisplayBounds): boolean {

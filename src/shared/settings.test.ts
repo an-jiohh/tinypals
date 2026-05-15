@@ -2,6 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
   DEFAULT_SETTINGS,
   getDefaultWindowBounds,
+  normalizeWindowBounds,
+  PET_WINDOW_DEFAULT_SIZE,
+  PET_WINDOW_MARGIN,
+  PET_WINDOW_MAX_SIZE,
+  PET_WINDOW_MIN_SIZE,
   normalizeSettings
 } from "./settings";
 import type { DisplayBounds } from "./types";
@@ -14,6 +19,13 @@ const display: DisplayBounds = {
 };
 
 describe("settings", () => {
+  it("exports the approved window sizing constants", () => {
+    expect(PET_WINDOW_MIN_SIZE).toBe(72);
+    expect(PET_WINDOW_DEFAULT_SIZE).toBe(96);
+    expect(PET_WINDOW_MAX_SIZE).toBe(180);
+    expect(PET_WINDOW_MARGIN).toBe(24);
+  });
+
   it("defines the approved default settings", () => {
     expect(DEFAULT_SETTINGS).toEqual({
       windowBounds: { x: 24, y: 24, width: 96, height: 96 },
@@ -41,6 +53,15 @@ describe("settings", () => {
     });
   });
 
+  it("normalizes undefined settings using display-aware defaults", () => {
+    expect(normalizeSettings(undefined, display)).toEqual({
+      windowBounds: { x: 124, y: 224, width: 96, height: 96 },
+      alwaysOnTop: true,
+      launchAtLogin: false,
+      selectedAssetPack: "temporary-pingu"
+    });
+  });
+
   it("repairs out-of-screen bounds to the default position", () => {
     expect(
       normalizeSettings(
@@ -54,6 +75,20 @@ describe("settings", () => {
         },
         display
       ).windowBounds
+    ).toEqual({ x: 124, y: 224, width: 96, height: 96 });
+  });
+
+  it("resets off-screen bounds to the full default bounds", () => {
+    expect(
+      normalizeWindowBounds(
+        {
+          x: 10_000,
+          y: -500,
+          width: 180,
+          height: 72
+        },
+        display
+      )
     ).toEqual({ x: 124, y: 224, width: 96, height: 96 });
   });
 
