@@ -92,6 +92,10 @@ Create `package.json` with this content:
     "vite": "^6.3.0",
     "vitest": "^3.1.0"
   },
+  "engines": {
+    "node": ">=22.12.0",
+    "npm": ">=10"
+  },
   "build": {
     "appId": "com.pingu.desktoppet",
     "productName": "Pingu Desktop Pet",
@@ -1777,7 +1781,7 @@ This project is designed around a licensed-use assumption for official Pingu IP.
 
 ## Requirements
 
-- Node.js 20 or newer
+- Node.js 22.12 or newer
 - npm 10 or newer
 - macOS or Windows for v1 manual verification
 
