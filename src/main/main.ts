@@ -9,6 +9,7 @@ import {
   getPrimaryDisplayBounds,
   getWindowBounds
 } from "./windowService";
+import { getSettingsResizeBounds } from "./windowResize";
 
 type WindowMoveDelta = {
   x: number;
@@ -115,7 +116,7 @@ async function persistWindowBounds(): Promise<void> {
     return;
   }
 
-  await store.save({ windowBounds: getWindowBounds(petWindow) });
+  await store.saveWindowBounds(getWindowBounds(petWindow));
 }
 
 async function createWindow(): Promise<void> {
@@ -164,15 +165,17 @@ function registerIpc(): void {
   );
 
   ipcMain.handle("window:reset-position", async () => {
-    const current = await store.load();
+    const currentSettings = await store.load();
+    const currentBounds =
+      petWindow && !petWindow.isDestroyed()
+        ? getWindowBounds(petWindow)
+        : currentSettings.windowBounds;
     const display = getPrimaryDisplayBounds();
     const defaultBounds = getDefaultWindowBounds(display);
-    const settings = await store.save({
-      windowBounds: {
-        ...current.windowBounds,
-        x: defaultBounds.x,
-        y: defaultBounds.y
-      }
+    const settings = await store.saveWindowBounds({
+      ...currentBounds,
+      x: defaultBounds.x,
+      y: defaultBounds.y
     });
 
     petWindow?.setBounds(settings.windowBounds);
@@ -188,7 +191,7 @@ function registerIpc(): void {
 
     const current = petWindow.getBounds();
     petWindow.setPosition(current.x + delta.x, current.y + delta.y);
-    return store.save({ windowBounds: getWindowBounds(petWindow) });
+    return store.saveWindowBounds(getWindowBounds(petWindow));
   });
 
   ipcMain.handle("window:resize", async (_event, rawSize: unknown) => {
@@ -198,14 +201,12 @@ function registerIpc(): void {
       petWindow && !petWindow.isDestroyed()
         ? getWindowBounds(petWindow)
         : currentSettings.windowBounds;
-    const settings = await store.save({
-      windowBounds: {
-        x: currentBounds.x,
-        y: currentBounds.y,
-        width: size.width,
-        height: size.height
-      }
-    });
+    const nextBounds = getSettingsResizeBounds(
+      currentBounds,
+      size,
+      getPrimaryDisplayBounds()
+    );
+    const settings = await store.saveWindowBounds(nextBounds);
 
     if (petWindow && !petWindow.isDestroyed()) {
       petWindow.setBounds(settings.windowBounds);

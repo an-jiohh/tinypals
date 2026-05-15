@@ -64,12 +64,15 @@ describe("settingsStore", () => {
     expect(raw.windowBounds).toEqual(safeBounds);
   });
 
-  it("persists an expanded settings window size without changing position", async () => {
+  it("persists a pre-normalized settings window size without changing position", async () => {
     tempDir = await mkdtemp(join(tmpdir(), "pingu-settings-"));
     const store = createSettingsStore(tempDir, () => display);
 
-    const saved = await store.save({
-      windowBounds: { x: 40, y: 60, width: 220, height: 220 }
+    const saved = await store.saveWindowBounds({
+      x: 40,
+      y: 60,
+      width: 220,
+      height: 220
     });
 
     expect(saved.windowBounds).toEqual({ x: 40, y: 60, width: 220, height: 220 });

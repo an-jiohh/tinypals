@@ -2,7 +2,7 @@ import type { AppSettings, DisplayBounds, WindowBounds } from "./types";
 
 export const PET_WINDOW_MIN_SIZE = 72;
 export const PET_WINDOW_DEFAULT_SIZE = 96;
-export const PET_WINDOW_MAX_SIZE = 240;
+export const PET_WINDOW_MAX_SIZE = 180;
 export const PET_WINDOW_MARGIN = 24;
 
 export const DEFAULT_SETTINGS: AppSettings = {

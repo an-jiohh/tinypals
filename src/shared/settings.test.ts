@@ -22,7 +22,7 @@ describe("settings", () => {
   it("exports the approved window sizing constants", () => {
     expect(PET_WINDOW_MIN_SIZE).toBe(72);
     expect(PET_WINDOW_DEFAULT_SIZE).toBe(96);
-    expect(PET_WINDOW_MAX_SIZE).toBe(240);
+    expect(PET_WINDOW_MAX_SIZE).toBe(180);
     expect(PET_WINDOW_MARGIN).toBe(24);
   });
 
@@ -105,6 +105,6 @@ describe("settings", () => {
         },
         display
       ).windowBounds
-    ).toEqual({ x: 320, y: 360, width: 72, height: 240 });
+    ).toEqual({ x: 320, y: 360, width: 72, height: 180 });
   });
 });

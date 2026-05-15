@@ -1,11 +1,12 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { normalizeSettings } from "../shared/settings";
-import type { AppSettings, DisplayBounds } from "../shared/types";
+import type { AppSettings, DisplayBounds, WindowBounds } from "../shared/types";
 
 export type SettingsStore = {
   load(): Promise<AppSettings>;
   save(patch: Partial<AppSettings>): Promise<AppSettings>;
+  saveWindowBounds(windowBounds: WindowBounds): Promise<AppSettings>;
 };
 
 export function createSettingsStore(
@@ -34,5 +35,13 @@ export function createSettingsStore(
     return next;
   }
 
-  return { load, save };
+  async function saveWindowBounds(windowBounds: WindowBounds): Promise<AppSettings> {
+    const current = await load();
+    const next = { ...current, windowBounds };
+    await mkdir(userDataPath, { recursive: true });
+    await writeFile(filePath, JSON.stringify(next, null, 2), "utf8");
+    return next;
+  }
+
+  return { load, save, saveWindowBounds };
 }

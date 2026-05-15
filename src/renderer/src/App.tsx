@@ -61,12 +61,14 @@ export function App() {
   const [statusMessage, setStatusMessage] = useState("");
   const dragRef = useRef<DragState | undefined>(undefined);
   const suppressNextClickRef = useRef(false);
+  const resizeRequestRef = useRef(0);
 
   const manifestWarnings = useMemo(() => validateAssetManifest(petManifest), []);
   const assetPath = getAssetForMood(petManifest, petState.mood);
 
   useEffect(() => {
     let mounted = true;
+    const startupRequestId = resizeRequestRef.current;
 
     void (async () => {
       try {
@@ -80,10 +82,15 @@ export function App() {
           loadedSettings.windowBounds.width !== PET_WINDOW_SIZE.width ||
           loadedSettings.windowBounds.height !== PET_WINDOW_SIZE.height
         ) {
+          if (resizeRequestRef.current !== startupRequestId) {
+            return;
+          }
+
+          const requestId = ++resizeRequestRef.current;
           const resizedSettings =
             await window.pinguDesktop.resizeWindow(PET_WINDOW_SIZE);
 
-          if (mounted) {
+          if (mounted && requestId === resizeRequestRef.current) {
             setSettings(resizedSettings);
             dispatchPet(createPetEvent("settings_changed"));
           }
@@ -149,20 +156,34 @@ export function App() {
     }
   }
 
-  async function resizeWindow(size: typeof PET_WINDOW_SIZE): Promise<void> {
+  async function resizeWindow(
+    size: typeof PET_WINDOW_SIZE,
+    requestId: number
+  ): Promise<void> {
     const nextSettings = await window.pinguDesktop.resizeWindow(size);
+    if (requestId !== resizeRequestRef.current) {
+      return;
+    }
+
     setSettings(nextSettings);
     dispatchPet(createPetEvent("settings_changed"));
   }
 
   async function setSettingsOpen(open: boolean): Promise<void> {
+    const requestId = ++resizeRequestRef.current;
+
     setPopoverOpen(open);
     setStatusMessage("");
 
     try {
-      await resizeWindow(open ? SETTINGS_WINDOW_SIZE : PET_WINDOW_SIZE);
+      await resizeWindow(
+        open ? SETTINGS_WINDOW_SIZE : PET_WINDOW_SIZE,
+        requestId
+      );
     } catch {
-      setStatusMessage(open ? "Could not expand" : "Could not shrink");
+      if (requestId === resizeRequestRef.current) {
+        setStatusMessage(open ? "Could not expand" : "Could not shrink");
+      }
     }
   }
 
