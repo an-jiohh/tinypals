@@ -23,6 +23,6 @@ export type PetAssetState = PetMood;
 export type PetAssetManifest = {
   id: string;
   displayName: string;
-  license: "official-licensed" | "temporary" | "custom";
+  license: "official-licensed" | "placeholder" | "custom";
   states: Record<PetAssetState, string>;
 };

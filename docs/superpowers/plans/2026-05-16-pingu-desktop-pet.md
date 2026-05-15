@@ -399,7 +399,7 @@ export type PetAssetState = PetMood;
 export type PetAssetManifest = {
   id: string;
   displayName: string;
-  license: "official-licensed" | "temporary" | "custom";
+  license: "official-licensed" | "placeholder" | "custom";
   states: Record<PetAssetState, string>;
 };
 ```
@@ -652,7 +652,7 @@ import type { PetAssetManifest } from "./petTypes";
 const completeManifest: PetAssetManifest = {
   id: "temporary-pingu",
   displayName: "Temporary Pingu",
-  license: "temporary",
+  license: "placeholder",
   states: {
     idle: "idle.svg",
     greet: "greet.svg",
@@ -772,7 +772,7 @@ Create `src/renderer/assets/pingu/manifest.json`:
 {
   "id": "temporary-pingu",
   "displayName": "Temporary Pingu",
-  "license": "temporary",
+  "license": "placeholder",
   "states": {
     "idle": "/assets/pingu/idle.svg",
     "greet": "/assets/pingu/greet.svg",
@@ -1777,7 +1777,7 @@ Pingu Desktop Pet is a minimal floating desktop pet app. The first version focus
 
 ## IP Notice
 
-This project is designed around a licensed-use assumption for official Pingu IP. Until licensing is confirmed, the app uses temporary SVG assets and a replaceable asset pack structure.
+This project is designed around a licensed-use assumption for official Pingu IP. Until licensing is confirmed, the app uses placeholder SVG assets and a replaceable asset pack structure.
 
 ## Requirements
 

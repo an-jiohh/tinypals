@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { reducePetState } from "./petStateMachine";
-import type { PetRuntimeState } from "./petTypes";
+import type { PetAssetManifest, PetRuntimeState } from "./petTypes";
 
 const baseState: PetRuntimeState = {
   mood: "idle",
@@ -60,5 +60,23 @@ describe("reducePetState", () => {
     expect(reducePetState(baseState, { type: "timer_paused", now: 9000 }).mood).toBe("sleepy");
     expect(reducePetState(baseState, { type: "timer_completed", now: 9000 }).mood).toBe("happy");
     expect(reducePetState(baseState, { type: "schedule_due", now: 9000 }).mood).toBe("attention");
+  });
+
+  it("accepts placeholder asset pack licensing", () => {
+    const manifest: PetAssetManifest = {
+      id: "placeholder-pingu",
+      displayName: "Temporary Pingu",
+      license: "placeholder",
+      states: {
+        idle: "/assets/pingu/idle.svg",
+        greet: "/assets/pingu/greet.svg",
+        dragging: "/assets/pingu/dragging.svg",
+        sleepy: "/assets/pingu/sleepy.svg",
+        happy: "/assets/pingu/happy.svg",
+        attention: "/assets/pingu/attention.svg"
+      }
+    };
+
+    expect(manifest.license).toBe("placeholder");
   });
 });
