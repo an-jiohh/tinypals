@@ -70,7 +70,7 @@ Create `package.json` with this content:
   "scripts": {
     "dev": "electron-vite dev",
     "build": "npm run typecheck && npm run test && electron-vite build",
-    "test": "vitest run",
+    "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "dist:mac": "npm run build && electron-builder --mac",
@@ -85,7 +85,7 @@ Create `package.json` with this content:
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
     "@vitejs/plugin-react": "^5.0.0",
-    "electron": "^36.0.0",
+    "electron": "^42.0.1",
     "electron-builder": "^26.0.0",
     "electron-vite": "^3.1.0",
     "typescript": "^5.8.0",
