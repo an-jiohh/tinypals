@@ -15,6 +15,11 @@ type WindowMoveDelta = {
   y: number;
 };
 
+type WindowSize = {
+  width: number;
+  height: number;
+};
+
 let petWindow: BrowserWindow | undefined;
 let tray: Tray | undefined;
 
@@ -91,6 +96,17 @@ function readMoveDelta(value: unknown): WindowMoveDelta {
   return {
     x: Math.round(readFiniteNumber(value.x, "delta.x")),
     y: Math.round(readFiniteNumber(value.y, "delta.y"))
+  };
+}
+
+function readWindowSize(value: unknown): WindowSize {
+  if (!isRecord(value)) {
+    throw new TypeError("window size must be an object");
+  }
+
+  return {
+    width: Math.round(readFiniteNumber(value.width, "size.width")),
+    height: Math.round(readFiniteNumber(value.height, "size.height"))
   };
 }
 
@@ -173,6 +189,29 @@ function registerIpc(): void {
     const current = petWindow.getBounds();
     petWindow.setPosition(current.x + delta.x, current.y + delta.y);
     return store.save({ windowBounds: getWindowBounds(petWindow) });
+  });
+
+  ipcMain.handle("window:resize", async (_event, rawSize: unknown) => {
+    const size = readWindowSize(rawSize);
+    const currentSettings = await store.load();
+    const currentBounds =
+      petWindow && !petWindow.isDestroyed()
+        ? getWindowBounds(petWindow)
+        : currentSettings.windowBounds;
+    const settings = await store.save({
+      windowBounds: {
+        x: currentBounds.x,
+        y: currentBounds.y,
+        width: size.width,
+        height: size.height
+      }
+    });
+
+    if (petWindow && !petWindow.isDestroyed()) {
+      petWindow.setBounds(settings.windowBounds);
+    }
+
+    return settings;
   });
 
   ipcMain.handle("window:set-always-on-top", (_event, enabled: unknown) =>

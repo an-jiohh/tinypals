@@ -6,7 +6,13 @@ import {
   useState,
   type PointerEvent
 } from "react";
+import attentionAssetUrl from "../assets/pingu/attention.svg";
+import draggingAssetUrl from "../assets/pingu/dragging.svg";
+import greetAssetUrl from "../assets/pingu/greet.svg";
+import happyAssetUrl from "../assets/pingu/happy.svg";
+import idleAssetUrl from "../assets/pingu/idle.svg";
 import manifest from "../assets/pingu/manifest.json";
+import sleepyAssetUrl from "../assets/pingu/sleepy.svg";
 import { getAssetForMood, validateAssetManifest } from "../../shared/assets";
 import {
   createInitialPetState,
@@ -18,8 +24,20 @@ import type { AppSettings } from "../../shared/types";
 const DRAG_START_DISTANCE = 3;
 const IDLE_TIMEOUT_MS = 120000;
 const IDLE_CHECK_INTERVAL_MS = 15000;
+const PET_WINDOW_SIZE = { width: 96, height: 96 };
+const SETTINGS_WINDOW_SIZE = { width: 220, height: 240 };
 
-const petManifest = manifest as PetAssetManifest;
+const petManifest: PetAssetManifest = {
+  ...(manifest as Omit<PetAssetManifest, "states">),
+  states: {
+    idle: idleAssetUrl,
+    greet: greetAssetUrl,
+    dragging: draggingAssetUrl,
+    sleepy: sleepyAssetUrl,
+    happy: happyAssetUrl,
+    attention: attentionAssetUrl
+  }
+};
 
 type DragState = {
   pointerId: number;
@@ -50,11 +68,32 @@ export function App() {
   useEffect(() => {
     let mounted = true;
 
-    void window.pinguDesktop.getSettings().then((loadedSettings) => {
-      if (mounted) {
-        setSettings(loadedSettings);
+    void (async () => {
+      try {
+        const loadedSettings = await window.pinguDesktop.getSettings();
+
+        if (mounted) {
+          setSettings(loadedSettings);
+        }
+
+        if (
+          loadedSettings.windowBounds.width !== PET_WINDOW_SIZE.width ||
+          loadedSettings.windowBounds.height !== PET_WINDOW_SIZE.height
+        ) {
+          const resizedSettings =
+            await window.pinguDesktop.resizeWindow(PET_WINDOW_SIZE);
+
+          if (mounted) {
+            setSettings(resizedSettings);
+            dispatchPet(createPetEvent("settings_changed"));
+          }
+        }
+      } catch {
+        if (mounted) {
+          setStatusMessage("Could not load settings");
+        }
       }
-    });
+    })();
     dispatchPet(createPetEvent("app_started"));
 
     return () => {
@@ -110,13 +149,30 @@ export function App() {
     }
   }
 
+  async function resizeWindow(size: typeof PET_WINDOW_SIZE): Promise<void> {
+    const nextSettings = await window.pinguDesktop.resizeWindow(size);
+    setSettings(nextSettings);
+    dispatchPet(createPetEvent("settings_changed"));
+  }
+
+  async function setSettingsOpen(open: boolean): Promise<void> {
+    setPopoverOpen(open);
+    setStatusMessage("");
+
+    try {
+      await resizeWindow(open ? SETTINGS_WINDOW_SIZE : PET_WINDOW_SIZE);
+    } catch {
+      setStatusMessage(open ? "Could not expand" : "Could not shrink");
+    }
+  }
+
   function handlePetClick(): void {
     if (suppressNextClickRef.current) {
       suppressNextClickRef.current = false;
       return;
     }
 
-    setPopoverOpen((isOpen) => !isOpen);
+    void setSettingsOpen(!popoverOpen);
     dispatchPet(createPetEvent("user_clicked"));
   }
 
@@ -191,7 +247,7 @@ export function App() {
   }
 
   return (
-    <main className="app-shell">
+    <main className={`app-shell${popoverOpen ? " settings-open" : ""}`}>
       <button
         className={`pet-button pet-${petState.mood}`}
         type="button"

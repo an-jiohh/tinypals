@@ -41,6 +41,14 @@ input {
   background: transparent;
 }
 
+.app-shell.settings-open {
+  grid-template-rows: 70px minmax(0, 1fr);
+  align-items: start;
+  justify-items: center;
+  padding: 6px 8px 8px;
+  row-gap: 4px;
+}
+
 .pet-button {
   width: min(100vw, 96px);
   height: min(100vh, 96px);
@@ -50,6 +58,11 @@ input {
   cursor: pointer;
   touch-action: none;
   -webkit-app-region: no-drag;
+}
+
+.settings-open .pet-button {
+  width: 64px;
+  height: 64px;
 }
 
 .pet-button:focus-visible {
@@ -81,11 +94,8 @@ input {
 }
 
 .settings-popover {
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  width: min(172px, calc(100vw - 8px));
-  max-height: calc(100vh - 8px);
+  width: min(204px, 100%);
+  max-height: 100%;
   padding: 8px;
   overflow: auto;
   border: 1px solid rgba(17, 24, 39, 0.14);

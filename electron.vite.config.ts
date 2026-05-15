@@ -25,6 +25,9 @@ export default defineConfig({
   },
   renderer: {
     root: "src/renderer",
-    plugins: [react()]
+    plugins: [react()],
+    build: {
+      assetsInlineLimit: 0
+    }
   }
 });

@@ -64,6 +64,17 @@ describe("settingsStore", () => {
     expect(raw.windowBounds).toEqual(safeBounds);
   });
 
+  it("persists an expanded settings window size without changing position", async () => {
+    tempDir = await mkdtemp(join(tmpdir(), "pingu-settings-"));
+    const store = createSettingsStore(tempDir, () => display);
+
+    const saved = await store.save({
+      windowBounds: { x: 40, y: 60, width: 220, height: 220 }
+    });
+
+    expect(saved.windowBounds).toEqual({ x: 40, y: 60, width: 220, height: 220 });
+  });
+
   it("recovers from invalid json", async () => {
     tempDir = await mkdtemp(join(tmpdir(), "pingu-settings-"));
     await writeFile(join(tempDir, "settings.json"), "{bad json", "utf8");

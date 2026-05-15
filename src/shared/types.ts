@@ -25,6 +25,7 @@ export type PinguDesktopApi = {
   updateSettings(patch: Partial<AppSettings>): Promise<AppSettings>;
   resetWindowPosition(): Promise<AppSettings>;
   moveWindowBy(delta: { x: number; y: number }): Promise<AppSettings>;
+  resizeWindow(size: { width: number; height: number }): Promise<AppSettings>;
   setAlwaysOnTop(enabled: boolean): Promise<AppSettings>;
   quit(): Promise<void>;
   getAppInfo(): Promise<AppInfo>;
