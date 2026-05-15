@@ -1,7 +1,12 @@
 import { app, BrowserWindow, Tray, ipcMain } from "electron";
 import { join } from "node:path";
 import { getDefaultWindowBounds } from "../shared/settings";
-import type { AppInfo, AppSettings, WindowBounds } from "../shared/types";
+import type {
+  AppInfo,
+  AppSettings,
+  ResizeWindowPayload,
+  WindowBounds
+} from "../shared/types";
 import { createSettingsStore } from "./settingsStore";
 import { createTray } from "./trayService";
 import {
@@ -9,20 +14,19 @@ import {
   getPrimaryDisplayBounds,
   getWindowBounds
 } from "./windowService";
-import { getSettingsResizeBounds } from "./windowResize";
+import {
+  createResizeRequestGate,
+  getSettingsResizeBounds
+} from "./windowResize";
 
 type WindowMoveDelta = {
   x: number;
   y: number;
 };
 
-type WindowSize = {
-  width: number;
-  height: number;
-};
-
 let petWindow: BrowserWindow | undefined;
 let tray: Tray | undefined;
+const resizeRequestGate = createResizeRequestGate();
 
 const store = createSettingsStore(app.getPath("userData"), getPrimaryDisplayBounds);
 
@@ -100,14 +104,15 @@ function readMoveDelta(value: unknown): WindowMoveDelta {
   };
 }
 
-function readWindowSize(value: unknown): WindowSize {
+function readResizeWindowPayload(value: unknown): ResizeWindowPayload {
   if (!isRecord(value)) {
-    throw new TypeError("window size must be an object");
+    throw new TypeError("resize payload must be an object");
   }
 
   return {
     width: Math.round(readFiniteNumber(value.width, "size.width")),
-    height: Math.round(readFiniteNumber(value.height, "size.height"))
+    height: Math.round(readFiniteNumber(value.height, "size.height")),
+    requestId: Math.round(readFiniteNumber(value.requestId, "requestId"))
   };
 }
 
@@ -194,8 +199,13 @@ function registerIpc(): void {
     return store.saveWindowBounds(getWindowBounds(petWindow));
   });
 
-  ipcMain.handle("window:resize", async (_event, rawSize: unknown) => {
-    const size = readWindowSize(rawSize);
+  ipcMain.handle("window:resize", async (_event, rawPayload: unknown) => {
+    const payload = readResizeWindowPayload(rawPayload);
+
+    if (!resizeRequestGate.shouldApply(payload.requestId)) {
+      return store.load();
+    }
+
     const currentSettings = await store.load();
     const currentBounds =
       petWindow && !petWindow.isDestroyed()
@@ -203,10 +213,18 @@ function registerIpc(): void {
         : currentSettings.windowBounds;
     const nextBounds = getSettingsResizeBounds(
       currentBounds,
-      size,
+      payload,
       getPrimaryDisplayBounds()
     );
+    if (!resizeRequestGate.isLatest(payload.requestId)) {
+      return store.load();
+    }
+
     const settings = await store.saveWindowBounds(nextBounds);
+
+    if (!resizeRequestGate.isLatest(payload.requestId)) {
+      return store.load();
+    }
 
     if (petWindow && !petWindow.isDestroyed()) {
       petWindow.setBounds(settings.windowBounds);

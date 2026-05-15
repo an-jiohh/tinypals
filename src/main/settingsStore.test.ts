@@ -78,6 +78,27 @@ describe("settingsStore", () => {
     expect(saved.windowBounds).toEqual({ x: 40, y: 60, width: 220, height: 220 });
   });
 
+  it("minimally clamps runtime window bounds before persisting", async () => {
+    tempDir = await mkdtemp(join(tmpdir(), "pingu-settings-"));
+    const store = createSettingsStore(tempDir, () => display);
+
+    const saved = await store.saveWindowBounds({
+      x: 1240,
+      y: 700,
+      width: 96,
+      height: 96
+    });
+    const raw = JSON.parse(await readFile(join(tempDir, "settings.json"), "utf8"));
+
+    expect(saved.windowBounds).toEqual({
+      x: 1184,
+      y: 624,
+      width: 96,
+      height: 96
+    });
+    expect(raw.windowBounds).toEqual({ x: 1184, y: 624, width: 96, height: 96 });
+  });
+
   it("recovers from invalid json", async () => {
     tempDir = await mkdtemp(join(tmpdir(), "pingu-settings-"));
     await writeFile(join(tempDir, "settings.json"), "{bad json", "utf8");

@@ -20,12 +20,18 @@ export type AppInfo = {
   platform: NodeJS.Platform;
 };
 
+export type ResizeWindowPayload = {
+  width: number;
+  height: number;
+  requestId: number;
+};
+
 export type PinguDesktopApi = {
   getSettings(): Promise<AppSettings>;
   updateSettings(patch: Partial<AppSettings>): Promise<AppSettings>;
   resetWindowPosition(): Promise<AppSettings>;
   moveWindowBy(delta: { x: number; y: number }): Promise<AppSettings>;
-  resizeWindow(size: { width: number; height: number }): Promise<AppSettings>;
+  resizeWindow(payload: ResizeWindowPayload): Promise<AppSettings>;
   setAlwaysOnTop(enabled: boolean): Promise<AppSettings>;
   quit(): Promise<void>;
   getAppInfo(): Promise<AppInfo>;

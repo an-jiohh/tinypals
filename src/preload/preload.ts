@@ -10,7 +10,7 @@ const api: PinguDesktopApi = {
   updateSettings: (patch) => invoke<AppSettings>("settings:update", patch),
   resetWindowPosition: () => invoke<AppSettings>("window:reset-position"),
   moveWindowBy: (delta) => invoke<AppSettings>("window:move-by", delta),
-  resizeWindow: (size) => invoke<AppSettings>("window:resize", size),
+  resizeWindow: (payload) => invoke<AppSettings>("window:resize", payload),
   setAlwaysOnTop: (enabled) =>
     invoke<AppSettings>("window:set-always-on-top", enabled),
   quit: () => invoke<void>("app:quit"),

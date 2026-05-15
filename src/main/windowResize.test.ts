@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   SETTINGS_WINDOW_MAX_SIZE,
+  createResizeRequestGate,
+  getRuntimeWindowBounds,
   getSettingsResizeBounds
 } from "./windowResize";
 import type { DisplayBounds, WindowBounds } from "../shared/types";
@@ -35,5 +37,34 @@ describe("getSettingsResizeBounds", () => {
       width: SETTINGS_WINDOW_MAX_SIZE,
       height: 72
     });
+  });
+
+  it("clamps runtime bounds to fit without resetting to the default position", () => {
+    expect(
+      getRuntimeWindowBounds(
+        { x: 480, y: 390, width: 180, height: 180 },
+        display
+      )
+    ).toEqual({ x: 320, y: 220, width: 180, height: 180 });
+  });
+
+  it("clamps oversized runtime bounds to display size and origin", () => {
+    expect(
+      getRuntimeWindowBounds(
+        { x: -20, y: -30, width: 900, height: 700 },
+        display
+      )
+    ).toEqual({ x: 0, y: 0, width: 500, height: 400 });
+  });
+
+  it("rejects stale resize requests after seeing a newer request", () => {
+    const gate = createResizeRequestGate();
+
+    expect(gate.shouldApply(2)).toBe(true);
+    expect(gate.isLatest(2)).toBe(true);
+    expect(gate.shouldApply(1)).toBe(false);
+    expect(gate.isLatest(1)).toBe(false);
+    expect(gate.shouldApply(3)).toBe(true);
+    expect(gate.isLatest(2)).toBe(false);
   });
 });

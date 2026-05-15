@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { normalizeSettings } from "../shared/settings";
 import type { AppSettings, DisplayBounds, WindowBounds } from "../shared/types";
+import { getRuntimeWindowBounds } from "./windowResize";
 
 export type SettingsStore = {
   load(): Promise<AppSettings>;
@@ -37,7 +38,10 @@ export function createSettingsStore(
 
   async function saveWindowBounds(windowBounds: WindowBounds): Promise<AppSettings> {
     const current = await load();
-    const next = { ...current, windowBounds };
+    const next = {
+      ...current,
+      windowBounds: getRuntimeWindowBounds(windowBounds, getPrimaryDisplayBounds())
+    };
     await mkdir(userDataPath, { recursive: true });
     await writeFile(filePath, JSON.stringify(next, null, 2), "utf8");
     return next;

@@ -87,8 +87,10 @@ export function App() {
           }
 
           const requestId = ++resizeRequestRef.current;
-          const resizedSettings =
-            await window.pinguDesktop.resizeWindow(PET_WINDOW_SIZE);
+          const resizedSettings = await window.pinguDesktop.resizeWindow({
+            ...PET_WINDOW_SIZE,
+            requestId
+          });
 
           if (mounted && requestId === resizeRequestRef.current) {
             setSettings(resizedSettings);
@@ -160,7 +162,10 @@ export function App() {
     size: typeof PET_WINDOW_SIZE,
     requestId: number
   ): Promise<void> {
-    const nextSettings = await window.pinguDesktop.resizeWindow(size);
+    const nextSettings = await window.pinguDesktop.resizeWindow({
+      ...size,
+      requestId
+    });
     if (requestId !== resizeRequestRef.current) {
       return;
     }
