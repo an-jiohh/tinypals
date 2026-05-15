@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Temporary Pingu happy">
+  <ellipse cx="48" cy="86" rx="22" ry="6" fill="#D9DEE8"/>
+  <ellipse cx="48" cy="46" rx="28" ry="34" fill="#1E2430"/>
+  <ellipse cx="48" cy="54" rx="20" ry="25" fill="#F7F8F2"/>
+  <path d="M35 34 Q39 30 43 34" stroke="#111827" stroke-width="2" fill="none"/>
+  <path d="M53 34 Q57 30 61 34" stroke="#111827" stroke-width="2" fill="none"/>
+  <path d="M40 42 Q48 54 56 42 Q48 62 40 42Z" fill="#F3A23B"/>
+  <path d="M26 57 Q13 52 22 67" stroke="#1E2430" stroke-width="8" stroke-linecap="round" fill="none"/>
+  <path d="M70 57 Q83 52 74 67" stroke="#1E2430" stroke-width="8" stroke-linecap="round" fill="none"/>
+  <ellipse cx="36" cy="84" rx="10" ry="4" fill="#F3A23B"/>
+  <ellipse cx="60" cy="84" rx="10" ry="4" fill="#F3A23B"/>
+</svg>

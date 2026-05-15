@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Temporary Pingu attention">
+  <ellipse cx="48" cy="82" rx="22" ry="6" fill="#D9DEE8"/>
+  <ellipse cx="48" cy="48" rx="28" ry="34" fill="#1E2430"/>
+  <ellipse cx="48" cy="56" rx="20" ry="25" fill="#F7F8F2"/>
+  <circle cx="39" cy="35" r="5" fill="#F7F8F2"/>
+  <circle cx="57" cy="35" r="3" fill="#F7F8F2"/>
+  <circle cx="40" cy="35" r="2" fill="#111827"/>
+  <circle cx="56" cy="35" r="2" fill="#111827"/>
+  <path d="M43 43 Q48 47 53 43 Q49 55 43 43Z" fill="#F3A23B"/>
+  <path d="M26 58 Q14 62 23 70" stroke="#1E2430" stroke-width="8" stroke-linecap="round" fill="none"/>
+  <path d="M70 58 Q82 62 73 70" stroke="#1E2430" stroke-width="8" stroke-linecap="round" fill="none"/>
+  <ellipse cx="36" cy="84" rx="10" ry="4" fill="#F3A23B"/>
+  <ellipse cx="60" cy="84" rx="10" ry="4" fill="#F3A23B"/>
+</svg>

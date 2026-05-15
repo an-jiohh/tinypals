@@ -1,0 +1,13 @@
+{
+  "id": "temporary-pingu",
+  "displayName": "Temporary Pingu",
+  "license": "placeholder",
+  "states": {
+    "idle": "/assets/pingu/idle.svg",
+    "greet": "/assets/pingu/greet.svg",
+    "dragging": "/assets/pingu/dragging.svg",
+    "sleepy": "/assets/pingu/sleepy.svg",
+    "happy": "/assets/pingu/happy.svg",
+    "attention": "/assets/pingu/attention.svg"
+  }
+}
