@@ -8,25 +8,46 @@ type WindowSize = {
   height: number;
 };
 
-export type ResizeRequestGate = {
-  shouldApply(requestId: number): boolean;
-  isLatest(requestId: number): boolean;
+type ResizePayload = {
+  requestId: number;
 };
 
-export function createResizeRequestGate(): ResizeRequestGate {
+type ResizeApply<TPayload extends ResizePayload, TResult> = (
+  payload: TPayload,
+  isLatest: () => boolean
+) => Promise<TResult>;
+
+export type ResizeRequestQueue<TPayload extends ResizePayload, TResult> = {
+  enqueue(payload: TPayload): Promise<TResult>;
+};
+
+export function createResizeRequestQueue<TPayload extends ResizePayload, TResult>(
+  loadCurrent: () => Promise<TResult>,
+  applyLatest: ResizeApply<TPayload, TResult>
+): ResizeRequestQueue<TPayload, TResult> {
   let latestRequestId = 0;
+  let resizeQueue = Promise.resolve();
 
   return {
-    shouldApply(requestId: number): boolean {
-      if (requestId < latestRequestId) {
-        return false;
-      }
+    enqueue(payload: TPayload): Promise<TResult> {
+      latestRequestId = Math.max(latestRequestId, payload.requestId);
 
-      latestRequestId = requestId;
-      return true;
-    },
-    isLatest(requestId: number): boolean {
-      return requestId >= latestRequestId;
+      const run = async (): Promise<TResult> => {
+        const isLatest = (): boolean => payload.requestId === latestRequestId;
+
+        if (!isLatest()) {
+          return loadCurrent();
+        }
+
+        return applyLatest(payload, isLatest);
+      };
+
+      const result = resizeQueue.then(run, run);
+      resizeQueue = result.then(
+        () => undefined,
+        () => undefined
+      );
+      return result;
     }
   };
 }

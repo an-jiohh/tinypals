@@ -15,7 +15,7 @@ import {
   getWindowBounds
 } from "./windowService";
 import {
-  createResizeRequestGate,
+  createResizeRequestQueue,
   getSettingsResizeBounds
 } from "./windowResize";
 
@@ -26,9 +26,39 @@ type WindowMoveDelta = {
 
 let petWindow: BrowserWindow | undefined;
 let tray: Tray | undefined;
-const resizeRequestGate = createResizeRequestGate();
 
 const store = createSettingsStore(app.getPath("userData"), getPrimaryDisplayBounds);
+const resizeRequestQueue = createResizeRequestQueue<ResizeWindowPayload, AppSettings>(
+  () => store.load(),
+  async (payload, isLatest) => {
+    const currentSettings = await store.load();
+    const currentBounds =
+      petWindow && !petWindow.isDestroyed()
+        ? getWindowBounds(petWindow)
+        : currentSettings.windowBounds;
+    const nextBounds = getSettingsResizeBounds(
+      currentBounds,
+      payload,
+      getPrimaryDisplayBounds()
+    );
+
+    if (!isLatest()) {
+      return store.load();
+    }
+
+    const settings = await store.saveWindowBounds(nextBounds);
+
+    if (!isLatest()) {
+      return store.load();
+    }
+
+    if (petWindow && !petWindow.isDestroyed()) {
+      petWindow.setBounds(settings.windowBounds);
+    }
+
+    return settings;
+  }
+);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -201,36 +231,7 @@ function registerIpc(): void {
 
   ipcMain.handle("window:resize", async (_event, rawPayload: unknown) => {
     const payload = readResizeWindowPayload(rawPayload);
-
-    if (!resizeRequestGate.shouldApply(payload.requestId)) {
-      return store.load();
-    }
-
-    const currentSettings = await store.load();
-    const currentBounds =
-      petWindow && !petWindow.isDestroyed()
-        ? getWindowBounds(petWindow)
-        : currentSettings.windowBounds;
-    const nextBounds = getSettingsResizeBounds(
-      currentBounds,
-      payload,
-      getPrimaryDisplayBounds()
-    );
-    if (!resizeRequestGate.isLatest(payload.requestId)) {
-      return store.load();
-    }
-
-    const settings = await store.saveWindowBounds(nextBounds);
-
-    if (!resizeRequestGate.isLatest(payload.requestId)) {
-      return store.load();
-    }
-
-    if (petWindow && !petWindow.isDestroyed()) {
-      petWindow.setBounds(settings.windowBounds);
-    }
-
-    return settings;
+    return resizeRequestQueue.enqueue(payload);
   });
 
   ipcMain.handle("window:set-always-on-top", (_event, enabled: unknown) =>

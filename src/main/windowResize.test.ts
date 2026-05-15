@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   SETTINGS_WINDOW_MAX_SIZE,
-  createResizeRequestGate,
+  createResizeRequestQueue,
   getRuntimeWindowBounds,
   getSettingsResizeBounds
 } from "./windowResize";
@@ -57,14 +57,40 @@ describe("getSettingsResizeBounds", () => {
     ).toEqual({ x: 0, y: 0, width: 500, height: 400 });
   });
 
-  it("rejects stale resize requests after seeing a newer request", () => {
-    const gate = createResizeRequestGate();
+  it("serializes resize requests and lets running handlers skip stale writes", async () => {
+    const appliedRequestIds: number[] = [];
+    let releaseFirstRequest: (() => void) | undefined;
+    const firstRequestStarted = new Promise<void>((resolveStarted) => {
+      releaseFirstRequest = resolveStarted;
+    });
+    let allowFirstRequestToContinue: (() => void) | undefined;
+    const firstRequestCanContinue = new Promise<void>((resolveContinue) => {
+      allowFirstRequestToContinue = resolveContinue;
+    });
+    const queue = createResizeRequestQueue<{ requestId: number }, string>(
+      async () => "current",
+      async (payload, isLatest) => {
+        if (payload.requestId === 1) {
+          releaseFirstRequest?.();
+          await firstRequestCanContinue;
+        }
 
-    expect(gate.shouldApply(2)).toBe(true);
-    expect(gate.isLatest(2)).toBe(true);
-    expect(gate.shouldApply(1)).toBe(false);
-    expect(gate.isLatest(1)).toBe(false);
-    expect(gate.shouldApply(3)).toBe(true);
-    expect(gate.isLatest(2)).toBe(false);
+        if (!isLatest()) {
+          return "stale";
+        }
+
+        appliedRequestIds.push(payload.requestId);
+        return `applied-${payload.requestId}`;
+      }
+    );
+
+    const first = queue.enqueue({ requestId: 1 });
+    await firstRequestStarted;
+    const second = queue.enqueue({ requestId: 2 });
+    allowFirstRequestToContinue?.();
+
+    await expect(first).resolves.toBe("stale");
+    await expect(second).resolves.toBe("applied-2");
+    expect(appliedRequestIds).toEqual([2]);
   });
 });
