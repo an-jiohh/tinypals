@@ -37,6 +37,33 @@ describe("settingsStore", () => {
     await expect(store.load()).resolves.toMatchObject({ alwaysOnTop: false });
   });
 
+  it("preserves existing persisted fields when saving a later patch", async () => {
+    tempDir = await mkdtemp(join(tmpdir(), "pingu-settings-"));
+    const store = createSettingsStore(tempDir, () => display);
+
+    await store.save({ selectedAssetPack: "custom-pack" });
+    await store.save({ alwaysOnTop: false });
+
+    await expect(store.load()).resolves.toMatchObject({
+      selectedAssetPack: "custom-pack",
+      alwaysOnTop: false
+    });
+  });
+
+  it("normalizes patched off-screen window bounds before saving", async () => {
+    tempDir = await mkdtemp(join(tmpdir(), "pingu-settings-"));
+    const store = createSettingsStore(tempDir, () => display);
+    const safeBounds = { x: 24, y: 24, width: 96, height: 96 };
+
+    const saved = await store.save({
+      windowBounds: { x: 5000, y: 5000, width: 20, height: 500 }
+    });
+    const raw = JSON.parse(await readFile(join(tempDir, "settings.json"), "utf8"));
+
+    expect(saved.windowBounds).toEqual(safeBounds);
+    expect(raw.windowBounds).toEqual(safeBounds);
+  });
+
   it("recovers from invalid json", async () => {
     tempDir = await mkdtemp(join(tmpdir(), "pingu-settings-"));
     await writeFile(join(tempDir, "settings.json"), "{bad json", "utf8");
