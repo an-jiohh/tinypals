@@ -28,6 +28,10 @@ type WindowMoveDelta = {
 let petWindow: BrowserWindow | undefined;
 let tray: Tray | undefined;
 
+if (process.env.PINGU_USER_DATA_DIR) {
+  app.setPath("userData", process.env.PINGU_USER_DATA_DIR);
+}
+
 const store = createSettingsStore(app.getPath("userData"), getPrimaryDisplayBounds);
 const programmaticBoundsSuppressor = createProgrammaticBoundsSuppressor();
 const resizeRequestQueue = createResizeRequestQueue<ResizeWindowPayload, AppSettings>(
