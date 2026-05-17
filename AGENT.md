@@ -11,10 +11,6 @@ The primary UX should feel like a small always-on-top companion, not a dashboard
 - Do not add or expand `AGENT.md` instructions without an explicit user request.
 
 ## Source of Truth
-Before implementation, read the planning markdown file in this repository.
-Summarize the intended product, UX style, and MVP scope before creating project files.
-Do not duplicate UX rules in this file; update the source documents below and keep this file as an index.
-
 - Overall overview and setup instructions: `README.md`
 - Tech stack and runtime structure: `docs/architecture.md`
 - Where to modify each feature: `docs/implementation-map.md`
