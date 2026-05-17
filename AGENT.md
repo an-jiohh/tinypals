@@ -8,10 +8,12 @@ The primary UX should feel like a small always-on-top companion, not a dashboard
 ## Workflow
 - If the planning intent changes, always ask the user whether the product intent file should be updated next.
 - Ask before adding production dependencies.
+- Do not add or expand `AGENT.md` instructions without an explicit user request.
 
 ## Source of Truth
 Before implementation, read the planning markdown file in this repository.
 Summarize the intended product, UX style, and MVP scope before creating project files.
+Do not duplicate UX rules in this file; update the source documents below and keep this file as an index.
 
 - Overall overview and setup instructions: `README.md`
 - Tech stack and runtime structure: `docs/architecture.md`
@@ -19,14 +21,6 @@ Summarize the intended product, UX style, and MVP scope before creating project 
 - Character/IP research: `docs/research/pingu-character-research-2026-05-15.md`
 - Product intent: `docs/superpowers/specs/2026-05-16-pingu-desktop-pet-design.md`
 - Implementation plan history: `docs/superpowers/plans/2026-05-16-pingu-desktop-pet.md`
-
-## UX Rules
-- Pet click is reserved for pet reaction/state changes.
-- Settings must be opened from the tray/menu bar or a dedicated settings surface, not from pet click.
-- Keep the pet window fixed at 96x96 unless the product direction changes.
-- Use `Move to Bottom Right` semantics instead of top-left reset behavior.
-- Keep settings window corners rounded; avoid overlapping native rounded borders with CSS borders.
-- Do not add official Pingu assets or sounds until licensing is confirmed.
 
 ## Verification
 When code exists:
