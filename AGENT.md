@@ -18,6 +18,7 @@ Do not duplicate UX rules in this file; update the source documents below and ke
 - Overall overview and setup instructions: `README.md`
 - Tech stack and runtime structure: `docs/architecture.md`
 - Where to modify each feature: `docs/implementation-map.md`
+- Product UX rules: `docs/ux-rules.md`
 - Character/IP research: `docs/research/pingu-character-research-2026-05-15.md`
 - Product intent: `docs/superpowers/specs/2026-05-16-pingu-desktop-pet-design.md`
 - Implementation plan history: `docs/superpowers/plans/2026-05-16-pingu-desktop-pet.md`
