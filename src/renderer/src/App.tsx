@@ -1,6 +1,5 @@
 import {
   useEffect,
-  useMemo,
   useReducer,
   useRef,
   useState,
@@ -13,7 +12,7 @@ import happyAssetUrl from "../assets/pingu/happy.svg";
 import idleAssetUrl from "../assets/pingu/idle.svg";
 import manifest from "../assets/pingu/manifest.json";
 import sleepyAssetUrl from "../assets/pingu/sleepy.svg";
-import { getAssetForMood, validateAssetManifest } from "../../shared/assets";
+import { getAssetForMood } from "../../shared/assets";
 import {
   createInitialPetState,
   reducePetState
@@ -24,8 +23,6 @@ import type { AppSettings } from "../../shared/types";
 const DRAG_START_DISTANCE = 3;
 const IDLE_TIMEOUT_MS = 120000;
 const IDLE_CHECK_INTERVAL_MS = 15000;
-const PET_WINDOW_SIZE = { width: 96, height: 96 };
-const SETTINGS_WINDOW_SIZE = { width: 220, height: 240 };
 
 const petManifest: PetAssetManifest = {
   ...(manifest as Omit<PetAssetManifest, "states">),
@@ -52,62 +49,20 @@ function createPetEvent(type: PetEvent["type"]): PetEvent {
 }
 
 export function App() {
+  return window.location.hash === "#settings" ? <SettingsApp /> : <PetApp />;
+}
+
+function PetApp() {
   const [petState, dispatchPet] = useReducer(
     reducePetState,
     createInitialPetState(Date.now())
   );
-  const [settings, setSettings] = useState<AppSettings | undefined>();
-  const [popoverOpen, setPopoverOpen] = useState(false);
-  const [statusMessage, setStatusMessage] = useState("");
   const dragRef = useRef<DragState | undefined>(undefined);
   const suppressNextClickRef = useRef(false);
-  const resizeRequestRef = useRef(0);
-
-  const manifestWarnings = useMemo(() => validateAssetManifest(petManifest), []);
   const assetPath = getAssetForMood(petManifest, petState.mood);
 
   useEffect(() => {
-    let mounted = true;
-    const startupRequestId = resizeRequestRef.current;
-
-    void (async () => {
-      try {
-        const loadedSettings = await window.pinguDesktop.getSettings();
-
-        if (mounted) {
-          setSettings(loadedSettings);
-        }
-
-        if (
-          loadedSettings.windowBounds.width !== PET_WINDOW_SIZE.width ||
-          loadedSettings.windowBounds.height !== PET_WINDOW_SIZE.height
-        ) {
-          if (resizeRequestRef.current !== startupRequestId) {
-            return;
-          }
-
-          const requestId = ++resizeRequestRef.current;
-          const resizedSettings = await window.pinguDesktop.resizeWindow({
-            ...PET_WINDOW_SIZE,
-            requestId
-          });
-
-          if (mounted && requestId === resizeRequestRef.current) {
-            setSettings(resizedSettings);
-            dispatchPet(createPetEvent("settings_changed"));
-          }
-        }
-      } catch {
-        if (mounted) {
-          setStatusMessage("Could not load settings");
-        }
-      }
-    })();
     dispatchPet(createPetEvent("app_started"));
-
-    return () => {
-      mounted = false;
-    };
   }, []);
 
   useEffect(() => {
@@ -123,82 +78,12 @@ export function App() {
     return () => window.clearInterval(timer);
   }, [petState.lastInteractionAt, petState.mood]);
 
-  async function updateAlwaysOnTop(enabled: boolean): Promise<void> {
-    try {
-      const nextSettings = await window.pinguDesktop.setAlwaysOnTop(enabled);
-      setSettings(nextSettings);
-      dispatchPet(createPetEvent("settings_changed"));
-      setStatusMessage("Saved");
-    } catch {
-      setStatusMessage("Could not save");
-    }
-  }
-
-  async function updateLaunchAtLogin(enabled: boolean): Promise<void> {
-    try {
-      const nextSettings = await window.pinguDesktop.updateSettings({
-        launchAtLogin: enabled
-      });
-      setSettings(nextSettings);
-      dispatchPet(createPetEvent("settings_changed"));
-      setStatusMessage("Saved");
-    } catch {
-      setStatusMessage("Could not save");
-    }
-  }
-
-  async function resetPosition(): Promise<void> {
-    try {
-      const nextSettings = await window.pinguDesktop.resetWindowPosition();
-      setSettings(nextSettings);
-      dispatchPet(createPetEvent("settings_changed"));
-      setStatusMessage("Position reset");
-    } catch {
-      setStatusMessage("Could not reset");
-    }
-  }
-
-  async function resizeWindow(
-    size: typeof PET_WINDOW_SIZE,
-    requestId: number
-  ): Promise<void> {
-    const nextSettings = await window.pinguDesktop.resizeWindow({
-      ...size,
-      requestId
-    });
-    if (requestId !== resizeRequestRef.current) {
-      return;
-    }
-
-    setSettings(nextSettings);
-    dispatchPet(createPetEvent("settings_changed"));
-  }
-
-  async function setSettingsOpen(open: boolean): Promise<void> {
-    const requestId = ++resizeRequestRef.current;
-
-    setPopoverOpen(open);
-    setStatusMessage("");
-
-    try {
-      await resizeWindow(
-        open ? SETTINGS_WINDOW_SIZE : PET_WINDOW_SIZE,
-        requestId
-      );
-    } catch {
-      if (requestId === resizeRequestRef.current) {
-        setStatusMessage(open ? "Could not expand" : "Could not shrink");
-      }
-    }
-  }
-
   function handlePetClick(): void {
     if (suppressNextClickRef.current) {
       suppressNextClickRef.current = false;
       return;
     }
 
-    void setSettingsOpen(!popoverOpen);
     dispatchPet(createPetEvent("user_clicked"));
   }
 
@@ -242,11 +127,7 @@ export function App() {
       moved: true,
       dragging: true
     };
-    const nextSettings = await window.pinguDesktop.moveWindowBy({
-      x: deltaX,
-      y: deltaY
-    });
-    setSettings(nextSettings);
+    await window.pinguDesktop.moveWindowBy({ x: deltaX, y: deltaY });
   }
 
   function finishPointerInteraction(
@@ -273,11 +154,11 @@ export function App() {
   }
 
   return (
-    <main className={`app-shell${popoverOpen ? " settings-open" : ""}`}>
+    <main className="app-shell">
       <button
         className={`pet-button pet-${petState.mood}`}
         type="button"
-        aria-label="Open Pingu settings"
+        aria-label="Greet Pingu"
         onClick={handlePetClick}
         onPointerDown={handlePointerDown}
         onPointerMove={(event) => void handlePointerMove(event)}
@@ -291,54 +172,181 @@ export function App() {
           draggable={false}
         />
       </button>
+    </main>
+  );
+}
 
-      {popoverOpen ? (
-        <section className="settings-popover" aria-label="Pingu settings">
-          <div className="settings-title">Pingu</div>
-          <label className="setting-row">
-            <span>Always on top</span>
-            <input
-              type="checkbox"
-              checked={settings?.alwaysOnTop ?? false}
-              disabled={!settings}
-              onChange={(event) =>
-                void updateAlwaysOnTop(event.currentTarget.checked)
-              }
-            />
-          </label>
-          <label className="setting-row">
-            <span>Start at login</span>
-            <input
-              type="checkbox"
-              checked={settings?.launchAtLogin ?? false}
-              disabled={!settings}
-              onChange={(event) =>
-                void updateLaunchAtLogin(event.currentTarget.checked)
-              }
-            />
-          </label>
+function SettingsApp() {
+  const [settings, setSettings] = useState<AppSettings | undefined>();
+
+  useEffect(() => {
+    let mounted = true;
+
+    void window.pinguDesktop
+      .getSettings()
+      .then((loadedSettings) => {
+        if (mounted) {
+          setSettings(loadedSettings);
+        }
+      })
+      .catch(() => {});
+
+    function closeOnEscape(event: KeyboardEvent): void {
+      if (event.key === "Escape") {
+        window.close();
+      }
+    }
+
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      mounted = false;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, []);
+
+  async function updateAlwaysOnTop(enabled: boolean): Promise<void> {
+    try {
+      const nextSettings = await window.pinguDesktop.setAlwaysOnTop(enabled);
+      setSettings(nextSettings);
+    } catch {}
+  }
+
+  async function updateLaunchAtLogin(enabled: boolean): Promise<void> {
+    try {
+      const nextSettings = await window.pinguDesktop.updateSettings({
+        launchAtLogin: enabled
+      });
+      setSettings(nextSettings);
+    } catch {}
+  }
+
+  async function moveToBottomRight(): Promise<void> {
+    try {
+      const nextSettings = await window.pinguDesktop.moveWindowToBottomRight();
+      setSettings(nextSettings);
+    } catch {}
+  }
+
+  async function showPingu(): Promise<void> {
+    try {
+      await window.pinguDesktop.showPingu();
+    } catch {}
+  }
+
+  return (
+    <main className="settings-shell">
+      <section className="settings-panel" aria-label="Pingu settings">
+        <header className="settings-header">
+          <h1>Preferences</h1>
           <button
-            className="settings-action"
+            className="icon-button"
             type="button"
-            onClick={() => void resetPosition()}
+            aria-label="Close settings"
+            onClick={() => window.close()}
           >
-            Reset position
+            <span aria-hidden="true">&times;</span>
           </button>
-          <button
-            className="settings-action"
-            type="button"
-            onClick={() => void window.pinguDesktop.quit()}
-          >
-            Quit
-          </button>
-          {statusMessage ? (
-            <p className="settings-message">{statusMessage}</p>
-          ) : null}
-          {manifestWarnings.length > 0 ? (
-            <p className="settings-message">Using fallback asset</p>
-          ) : null}
-        </section>
-      ) : null}
+        </header>
+
+        <div className="settings-content">
+          <section className="settings-section" aria-labelledby="general-title">
+            <div className="settings-section-heading">
+              <h2 id="general-title">General</h2>
+            </div>
+            <div className="settings-card">
+              <label className="settings-row">
+                <span>
+                  <strong>Always on Top</strong>
+                  <small>Keep the pet visible above other windows</small>
+                </span>
+                <span className="switch-control">
+                  <input
+                    type="checkbox"
+                    checked={settings?.alwaysOnTop ?? false}
+                    disabled={!settings}
+                    onChange={(event) =>
+                      void updateAlwaysOnTop(event.currentTarget.checked)
+                    }
+                  />
+                  <span className="switch-track" aria-hidden="true">
+                    <span className="switch-thumb" />
+                  </span>
+                </span>
+              </label>
+
+              <label className="settings-row">
+                <span>
+                  <strong>Start at Login</strong>
+                  <small>Open Pingu when macOS starts</small>
+                </span>
+                <span className="switch-control">
+                  <input
+                    type="checkbox"
+                    checked={settings?.launchAtLogin ?? false}
+                    disabled={!settings}
+                    onChange={(event) =>
+                      void updateLaunchAtLogin(event.currentTarget.checked)
+                    }
+                  />
+                  <span className="switch-track" aria-hidden="true">
+                    <span className="switch-thumb" />
+                  </span>
+                </span>
+              </label>
+            </div>
+          </section>
+
+          <section className="settings-section" aria-labelledby="window-title">
+            <div className="settings-section-heading">
+              <h2 id="window-title">Window</h2>
+            </div>
+            <div className="settings-card">
+              <button
+                className="settings-row action-row"
+                type="button"
+                onClick={() => void moveToBottomRight()}
+              >
+                <span>
+                  <strong>Move to Bottom Right</strong>
+                  <small>Place Pingu back in the desktop corner</small>
+                </span>
+                <span className="row-action">Move</span>
+              </button>
+
+              <button
+                className="settings-row action-row"
+                type="button"
+                onClick={() => void showPingu()}
+              >
+                <span>
+                  <strong>Show Pingu</strong>
+                  <small>Bring the pet window forward</small>
+                </span>
+                <span className="row-action">Show</span>
+              </button>
+            </div>
+          </section>
+
+          <section className="settings-section" aria-labelledby="app-title">
+            <div className="settings-section-heading">
+              <h2 id="app-title">App</h2>
+            </div>
+            <div className="settings-card">
+              <button
+                className="settings-row action-row danger-row"
+                type="button"
+                onClick={() => void window.pinguDesktop.quit()}
+              >
+                <span>
+                  <strong>Quit</strong>
+                  <small>Close Pingu Desktop Pet</small>
+                </span>
+                <span className="row-action">Quit</span>
+              </button>
+            </div>
+          </section>
+        </div>
+      </section>
     </main>
   );
 }

@@ -1,8 +1,9 @@
-# AGENTS.md
+# AGENT.md
 
 ## Project Intent
-This project is a desktop floating study/work timer.
-The primary UX should feel like a small always-on-top companion widget, not a dashboard-first productivity app.
+This project is a minimal desktop floating virtual pet.
+The first product layer is the companion pet itself; timer, schedule, and study/work features are future additions.
+The primary UX should feel like a small always-on-top companion, not a dashboard-first productivity app.
 
 ## Workflow
 - If the planning intent changes, always ask the user whether the product intent file should be updated next.
@@ -15,8 +16,17 @@ Summarize the intended product, UX style, and MVP scope before creating project 
 - Overall overview and setup instructions: `README.md`
 - Tech stack and runtime structure: `docs/architecture.md`
 - Where to modify each feature: `docs/implementation-map.md`
+- Character/IP research: `docs/research/pingu-character-research-2026-05-15.md`
 - Product intent: `docs/superpowers/specs/2026-05-16-pingu-desktop-pet-design.md`
 - Implementation plan history: `docs/superpowers/plans/2026-05-16-pingu-desktop-pet.md`
+
+## UX Rules
+- Pet click is reserved for pet reaction/state changes.
+- Settings must be opened from the tray/menu bar or a dedicated settings surface, not from pet click.
+- Keep the pet window fixed at 96x96 unless the product direction changes.
+- Use `Move to Bottom Right` semantics instead of top-left reset behavior.
+- Keep settings window corners rounded; avoid overlapping native rounded borders with CSS borders.
+- Do not add official Pingu assets or sounds until licensing is confirmed.
 
 ## Verification
 When code exists:

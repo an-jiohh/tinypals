@@ -8,9 +8,10 @@ function invoke<T>(channel: string, ...args: unknown[]): Promise<T> {
 const api: PinguDesktopApi = {
   getSettings: () => invoke<AppSettings>("settings:get"),
   updateSettings: (patch) => invoke<AppSettings>("settings:update", patch),
-  resetWindowPosition: () => invoke<AppSettings>("window:reset-position"),
+  openSettingsWindow: () => invoke<void>("settings:open-window"),
+  showPingu: () => invoke<void>("window:show-pingu"),
+  moveWindowToBottomRight: () => invoke<AppSettings>("window:move-to-bottom-right"),
   moveWindowBy: (delta) => invoke<AppSettings>("window:move-by", delta),
-  resizeWindow: (payload) => invoke<AppSettings>("window:resize", payload),
   setAlwaysOnTop: (enabled) =>
     invoke<AppSettings>("window:set-always-on-top", enabled),
   quit: () => invoke<void>("app:quit"),

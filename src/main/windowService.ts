@@ -1,8 +1,7 @@
 import { BrowserWindow, screen } from "electron";
 import { join } from "node:path";
-import { PET_WINDOW_MIN_SIZE } from "../shared/settings";
+import { PET_WINDOW_DEFAULT_SIZE } from "../shared/settings";
 import type { AppSettings, DisplayBounds, WindowBounds } from "../shared/types";
-import { SETTINGS_WINDOW_MAX_SIZE } from "./windowResize";
 
 export function getPrimaryDisplayBounds(): DisplayBounds {
   const { x, y, width, height } = screen.getPrimaryDisplay().workArea;
@@ -13,15 +12,15 @@ export function createPetWindow(settings: AppSettings): BrowserWindow {
   const petWindow = new BrowserWindow({
     x: settings.windowBounds.x,
     y: settings.windowBounds.y,
-    width: settings.windowBounds.width,
-    height: settings.windowBounds.height,
-    minWidth: PET_WINDOW_MIN_SIZE,
-    minHeight: PET_WINDOW_MIN_SIZE,
-    maxWidth: SETTINGS_WINDOW_MAX_SIZE,
-    maxHeight: SETTINGS_WINDOW_MAX_SIZE,
+    width: PET_WINDOW_DEFAULT_SIZE,
+    height: PET_WINDOW_DEFAULT_SIZE,
+    minWidth: PET_WINDOW_DEFAULT_SIZE,
+    minHeight: PET_WINDOW_DEFAULT_SIZE,
+    maxWidth: PET_WINDOW_DEFAULT_SIZE,
+    maxHeight: PET_WINDOW_DEFAULT_SIZE,
     frame: false,
     transparent: true,
-    resizable: true,
+    resizable: false,
     movable: true,
     hasShadow: false,
     alwaysOnTop: settings.alwaysOnTop,

@@ -1,8 +1,6 @@
 import type { AppSettings, DisplayBounds, WindowBounds } from "./types";
 
-export const PET_WINDOW_MIN_SIZE = 72;
 export const PET_WINDOW_DEFAULT_SIZE = 96;
-export const PET_WINDOW_MAX_SIZE = 180;
 export const PET_WINDOW_MARGIN = 24;
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -14,8 +12,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
 
 export function getDefaultWindowBounds(display: DisplayBounds): WindowBounds {
   return {
-    x: display.x + PET_WINDOW_MARGIN,
-    y: display.y + PET_WINDOW_MARGIN,
+    x: display.x + display.width - PET_WINDOW_DEFAULT_SIZE - PET_WINDOW_MARGIN,
+    y: display.y + display.height - PET_WINDOW_DEFAULT_SIZE - PET_WINDOW_MARGIN,
     width: PET_WINDOW_DEFAULT_SIZE,
     height: PET_WINDOW_DEFAULT_SIZE
   };
@@ -31,13 +29,11 @@ export function normalizeWindowBounds(
     ...bounds
   };
 
-  const width = clampSize(mergedBounds.width);
-  const height = clampSize(mergedBounds.height);
   const normalizedBounds = {
     x: mergedBounds.x,
     y: mergedBounds.y,
-    width,
-    height
+    width: PET_WINDOW_DEFAULT_SIZE,
+    height: PET_WINDOW_DEFAULT_SIZE
   };
 
   if (!isWithinDisplay(normalizedBounds, display)) {
@@ -58,10 +54,6 @@ export function normalizeSettings(
     selectedAssetPack: input?.selectedAssetPack ?? DEFAULT_SETTINGS.selectedAssetPack,
     windowBounds: normalizeWindowBounds(input?.windowBounds, display)
   };
-}
-
-function clampSize(size: number): number {
-  return Math.min(PET_WINDOW_MAX_SIZE, Math.max(PET_WINDOW_MIN_SIZE, size));
 }
 
 function isWithinDisplay(bounds: WindowBounds, display: DisplayBounds): boolean {

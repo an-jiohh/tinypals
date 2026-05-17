@@ -21,7 +21,7 @@ describe("settingsStore", () => {
     const store = createSettingsStore(tempDir, () => display);
 
     await expect(store.load()).resolves.toMatchObject({
-      windowBounds: { x: 24, y: 24, width: 96, height: 96 },
+      windowBounds: { x: 1160, y: 600, width: 96, height: 96 },
       alwaysOnTop: true
     });
   });
@@ -53,7 +53,7 @@ describe("settingsStore", () => {
   it("normalizes patched off-screen window bounds before saving", async () => {
     tempDir = await mkdtemp(join(tmpdir(), "pingu-settings-"));
     const store = createSettingsStore(tempDir, () => display);
-    const safeBounds = { x: 24, y: 24, width: 96, height: 96 };
+    const safeBounds = { x: 1160, y: 600, width: 96, height: 96 };
 
     const saved = await store.save({
       windowBounds: { x: 5000, y: 5000, width: 20, height: 500 }
@@ -64,7 +64,7 @@ describe("settingsStore", () => {
     expect(raw.windowBounds).toEqual(safeBounds);
   });
 
-  it("persists a pre-normalized settings window size without changing position", async () => {
+  it("persists dragged pet bounds with the fixed pet size", async () => {
     tempDir = await mkdtemp(join(tmpdir(), "pingu-settings-"));
     const store = createSettingsStore(tempDir, () => display);
 
@@ -75,7 +75,7 @@ describe("settingsStore", () => {
       height: 220
     });
 
-    expect(saved.windowBounds).toEqual({ x: 40, y: 60, width: 220, height: 220 });
+    expect(saved.windowBounds).toEqual({ x: 40, y: 60, width: 96, height: 96 });
   });
 
   it("minimally clamps runtime window bounds before persisting", async () => {

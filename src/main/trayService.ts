@@ -1,21 +1,61 @@
-import { app, Menu, Tray, nativeImage } from "electron";
+import {
+  app,
+  Menu,
+  Tray,
+  nativeImage,
+  type MenuItemConstructorOptions
+} from "electron";
+import { join } from "node:path";
 
-const TRAY_ICON_PNG_BASE64 =
-  "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAWUlEQVR4nGNgGAWjYBSMglEwCkbBjMD///8vBqLugWiAeD4Q3wHiAkD8A4hfgXgUETcA8RkgPgbE/0A8E4gfoeBuINsL5QfiO0C8CogfA+LAh4g4AJiwBBNQCADY/SKBuwnGVAAAAABJRU5ErkJggg==";
+const TRAY_ICON_PATH = join(__dirname, "assets/tray-icon-template.png");
+const TRAY_ICON_SIZE = 18;
 
 function createTrayIcon(): Electron.NativeImage {
-  const image = nativeImage.createFromBuffer(
-    Buffer.from(TRAY_ICON_PNG_BASE64, "base64")
-  );
+  const image = nativeImage.createFromPath(TRAY_ICON_PATH);
+  const resizedImage = image.resize({
+    width: TRAY_ICON_SIZE,
+    height: TRAY_ICON_SIZE
+  });
 
   if (process.platform === "darwin") {
-    image.setTemplateImage(true);
+    resizedImage.setTemplateImage(true);
   }
 
-  return image;
+  return resizedImage;
 }
 
-export function createTray(onShow: () => void): Tray | undefined {
+export type TrayActions = {
+  onOpenSettings: () => void;
+  onShowPingu: () => void;
+};
+
+function createCommandMenuItems(
+  actions: TrayActions
+): MenuItemConstructorOptions[] {
+  return [
+    {
+      label: "Open Settings",
+      accelerator: "CommandOrControl+,",
+      click: actions.onOpenSettings
+    },
+    { label: "Show Pingu", click: actions.onShowPingu },
+    { type: "separator" },
+    { label: "Quit", accelerator: "CommandOrControl+Q", click: () => app.quit() }
+  ];
+}
+
+export function installApplicationMenu(actions: TrayActions): void {
+  const template: MenuItemConstructorOptions[] = [
+    {
+      label: "Pingu",
+      submenu: createCommandMenuItems(actions)
+    }
+  ];
+
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+}
+
+export function createTray(actions: TrayActions): Tray | undefined {
   try {
     const icon = createTrayIcon();
 
@@ -26,14 +66,9 @@ export function createTray(onShow: () => void): Tray | undefined {
     const tray = new Tray(icon);
     tray.setToolTip("Pingu Desktop Pet");
     tray.setContextMenu(
-      Menu.buildFromTemplate([
-        { label: "Show Pingu", click: onShow },
-        { type: "separator" },
-        { label: "Quit", click: () => app.quit() }
-      ])
+      Menu.buildFromTemplate(createCommandMenuItems(actions))
     );
 
-    tray.on("click", onShow);
     return tray;
   } catch {
     return undefined;

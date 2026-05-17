@@ -4,20 +4,18 @@ import { getDefaultWindowBounds } from "../shared/settings";
 import type {
   AppInfo,
   AppSettings,
-  ResizeWindowPayload,
   WindowBounds
 } from "../shared/types";
 import { createSettingsStore } from "./settingsStore";
-import { createTray } from "./trayService";
+import { createSettingsWindowOptions } from "./settingsWindowOptions";
+import { createTray, installApplicationMenu } from "./trayService";
 import {
   createPetWindow,
   getPrimaryDisplayBounds,
   getWindowBounds
 } from "./windowService";
 import {
-  createProgrammaticBoundsSuppressor,
-  createResizeRequestQueue,
-  getSettingsResizeBounds
+  createProgrammaticBoundsSuppressor
 } from "./windowResize";
 
 type WindowMoveDelta = {
@@ -26,6 +24,7 @@ type WindowMoveDelta = {
 };
 
 let petWindow: BrowserWindow | undefined;
+let settingsWindow: BrowserWindow | undefined;
 let tray: Tray | undefined;
 
 if (process.env.PINGU_USER_DATA_DIR) {
@@ -34,36 +33,6 @@ if (process.env.PINGU_USER_DATA_DIR) {
 
 const store = createSettingsStore(app.getPath("userData"), getPrimaryDisplayBounds);
 const programmaticBoundsSuppressor = createProgrammaticBoundsSuppressor();
-const resizeRequestQueue = createResizeRequestQueue<ResizeWindowPayload, AppSettings>(
-  () => store.load(),
-  async (payload, isLatest) => {
-    const currentSettings = await store.load();
-    const currentBounds =
-      petWindow && !petWindow.isDestroyed()
-        ? getWindowBounds(petWindow)
-        : currentSettings.windowBounds;
-    const nextBounds = getSettingsResizeBounds(
-      currentBounds,
-      payload,
-      getPrimaryDisplayBounds()
-    );
-
-    if (!isLatest()) {
-      return store.load();
-    }
-
-    // Programmatic open/close resizing is runtime-only so stale resize requests
-    // cannot overwrite persisted drag/reset bounds.
-    if (petWindow && !petWindow.isDestroyed()) {
-      applyProgrammaticBounds(nextBounds);
-    }
-
-    return {
-      ...currentSettings,
-      windowBounds: nextBounds
-    };
-  }
-);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -139,18 +108,6 @@ function readMoveDelta(value: unknown): WindowMoveDelta {
   };
 }
 
-function readResizeWindowPayload(value: unknown): ResizeWindowPayload {
-  if (!isRecord(value)) {
-    throw new TypeError("resize payload must be an object");
-  }
-
-  return {
-    width: Math.round(readFiniteNumber(value.width, "size.width")),
-    height: Math.round(readFiniteNumber(value.height, "size.height")),
-    requestId: Math.round(readFiniteNumber(value.requestId, "requestId"))
-  };
-}
-
 async function persistWindowBounds(): Promise<void> {
   if (!petWindow || petWindow.isDestroyed()) {
     return;
@@ -166,6 +123,24 @@ function applyProgrammaticBounds(bounds: WindowBounds): void {
 
   programmaticBoundsSuppressor.suppressNext(bounds);
   petWindow.setBounds(bounds);
+}
+
+async function loadRendererWindow(
+  window: BrowserWindow,
+  hash?: string
+): Promise<void> {
+  if (process.env.ELECTRON_RENDERER_URL) {
+    const url = new URL(process.env.ELECTRON_RENDERER_URL);
+    if (hash) {
+      url.hash = hash;
+    }
+    await window.loadURL(url.toString());
+    return;
+  }
+
+  await window.loadFile(join(__dirname, "../renderer/index.html"), {
+    hash
+  });
 }
 
 async function createWindow(): Promise<void> {
@@ -204,11 +179,7 @@ async function createWindow(): Promise<void> {
     petWindow?.show();
   });
 
-  if (process.env.ELECTRON_RENDERER_URL) {
-    await petWindow.loadURL(process.env.ELECTRON_RENDERER_URL);
-  } else {
-    await petWindow.loadFile(join(__dirname, "../renderer/index.html"));
-  }
+  await loadRendererWindow(petWindow);
 }
 
 async function showOrCreateWindow(): Promise<void> {
@@ -219,6 +190,34 @@ async function showOrCreateWindow(): Promise<void> {
 
   petWindow.show();
   petWindow.focus();
+}
+
+async function showOrCreateSettingsWindow(): Promise<void> {
+  if (settingsWindow && !settingsWindow.isDestroyed()) {
+    settingsWindow.show();
+    settingsWindow.focus();
+    return;
+  }
+
+  settingsWindow = new BrowserWindow(
+    createSettingsWindowOptions(join(__dirname, "../preload/index.mjs"))
+  );
+  settingsWindow.setAlwaysOnTop(true, "floating");
+  settingsWindow.once("ready-to-show", () => {
+    settingsWindow?.show();
+  });
+  settingsWindow.on("closed", () => {
+    settingsWindow = undefined;
+  });
+
+  await loadRendererWindow(settingsWindow, "settings");
+}
+
+async function movePetWindowToBottomRight(): Promise<AppSettings> {
+  const defaultBounds = getDefaultWindowBounds(getPrimaryDisplayBounds());
+  const settings = await store.saveWindowBounds(defaultBounds);
+  applyProgrammaticBounds(settings.windowBounds);
+  return settings;
 }
 
 async function saveSettingsPatch(patch: Partial<AppSettings>): Promise<AppSettings> {
@@ -235,23 +234,13 @@ function registerIpc(): void {
     saveSettingsPatch(readSettingsPatch(patch))
   );
 
-  ipcMain.handle("window:reset-position", async () => {
-    const currentSettings = await store.load();
-    const currentBounds =
-      petWindow && !petWindow.isDestroyed()
-        ? getWindowBounds(petWindow)
-        : currentSettings.windowBounds;
-    const display = getPrimaryDisplayBounds();
-    const defaultBounds = getDefaultWindowBounds(display);
-    const settings = await store.saveWindowBounds({
-      ...currentBounds,
-      x: defaultBounds.x,
-      y: defaultBounds.y
-    });
+  ipcMain.handle("settings:open-window", () => showOrCreateSettingsWindow());
 
-    applyProgrammaticBounds(settings.windowBounds);
-    return settings;
-  });
+  ipcMain.handle("window:show-pingu", () => showOrCreateWindow());
+
+  ipcMain.handle("window:move-to-bottom-right", () =>
+    movePetWindowToBottomRight()
+  );
 
   ipcMain.handle("window:move-by", async (_event, rawDelta: unknown) => {
     const delta = readMoveDelta(rawDelta);
@@ -263,11 +252,6 @@ function registerIpc(): void {
     const current = petWindow.getBounds();
     petWindow.setPosition(current.x + delta.x, current.y + delta.y);
     return store.saveWindowBounds(getWindowBounds(petWindow));
-  });
-
-  ipcMain.handle("window:resize", async (_event, rawPayload: unknown) => {
-    const payload = readResizeWindowPayload(rawPayload);
-    return resizeRequestQueue.enqueue(payload);
   });
 
   ipcMain.handle("window:set-always-on-top", (_event, enabled: unknown) =>
@@ -298,9 +282,16 @@ app.on("activate", () => {
 void app.whenReady().then(async () => {
   registerIpc();
   await createWindow();
-  tray = createTray(() => {
-    void showOrCreateWindow();
-  });
+  const menuActions = {
+    onOpenSettings: () => {
+      void showOrCreateSettingsWindow();
+    },
+    onShowPingu: () => {
+      void showOrCreateWindow();
+    }
+  };
+  installApplicationMenu(menuActions);
+  tray = createTray(menuActions);
 
   const settings = await store.load();
   app.setLoginItemSettings({ openAtLogin: settings.launchAtLogin });

@@ -5,8 +5,6 @@ import {
   normalizeWindowBounds,
   PET_WINDOW_DEFAULT_SIZE,
   PET_WINDOW_MARGIN,
-  PET_WINDOW_MAX_SIZE,
-  PET_WINDOW_MIN_SIZE,
   normalizeSettings
 } from "./settings";
 import type { DisplayBounds } from "./types";
@@ -20,9 +18,7 @@ const display: DisplayBounds = {
 
 describe("settings", () => {
   it("exports the approved window sizing constants", () => {
-    expect(PET_WINDOW_MIN_SIZE).toBe(72);
     expect(PET_WINDOW_DEFAULT_SIZE).toBe(96);
-    expect(PET_WINDOW_MAX_SIZE).toBe(180);
     expect(PET_WINDOW_MARGIN).toBe(24);
   });
 
@@ -35,10 +31,10 @@ describe("settings", () => {
     });
   });
 
-  it("places default window bounds at the display origin plus a margin", () => {
+  it("places default window bounds at the display bottom right with a margin", () => {
     expect(getDefaultWindowBounds(display)).toEqual({
-      x: 124,
-      y: 224,
+      x: 1420,
+      y: 980,
       width: 96,
       height: 96
     });
@@ -46,7 +42,7 @@ describe("settings", () => {
 
   it("merges partial settings with defaults", () => {
     expect(normalizeSettings({ alwaysOnTop: false }, display)).toEqual({
-      windowBounds: { x: 124, y: 224, width: 96, height: 96 },
+      windowBounds: { x: 1420, y: 980, width: 96, height: 96 },
       alwaysOnTop: false,
       launchAtLogin: false,
       selectedAssetPack: "temporary-pingu"
@@ -55,7 +51,7 @@ describe("settings", () => {
 
   it("normalizes undefined settings using display-aware defaults", () => {
     expect(normalizeSettings(undefined, display)).toEqual({
-      windowBounds: { x: 124, y: 224, width: 96, height: 96 },
+      windowBounds: { x: 1420, y: 980, width: 96, height: 96 },
       alwaysOnTop: true,
       launchAtLogin: false,
       selectedAssetPack: "temporary-pingu"
@@ -75,7 +71,7 @@ describe("settings", () => {
         },
         display
       ).windowBounds
-    ).toEqual({ x: 124, y: 224, width: 96, height: 96 });
+    ).toEqual({ x: 1420, y: 980, width: 96, height: 96 });
   });
 
   it("resets off-screen bounds to the full default bounds", () => {
@@ -89,10 +85,10 @@ describe("settings", () => {
         },
         display
       )
-    ).toEqual({ x: 124, y: 224, width: 96, height: 96 });
+    ).toEqual({ x: 1420, y: 980, width: 96, height: 96 });
   });
 
-  it("clamps window size to the allowed bounds", () => {
+  it("ignores persisted size and keeps the pet window fixed", () => {
     expect(
       normalizeSettings(
         {
@@ -105,6 +101,6 @@ describe("settings", () => {
         },
         display
       ).windowBounds
-    ).toEqual({ x: 320, y: 360, width: 72, height: 180 });
+    ).toEqual({ x: 320, y: 360, width: 96, height: 96 });
   });
 });
