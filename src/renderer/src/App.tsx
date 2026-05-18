@@ -339,7 +339,7 @@ function SettingsApp() {
               >
                 <span>
                   <strong>Quit</strong>
-                  <small>Close Pingu Desktop Pet</small>
+                  <small>Close Pingu</small>
                 </span>
                 <span className="row-action">Quit</span>
               </button>

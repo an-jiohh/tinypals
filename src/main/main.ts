@@ -1,5 +1,6 @@
 import { app, BrowserWindow, Tray, ipcMain } from "electron";
 import { join } from "node:path";
+import { APP_DISPLAY_NAME } from "../shared/appIdentity";
 import { getDefaultWindowBounds } from "../shared/settings";
 import type {
   AppInfo,
@@ -26,6 +27,8 @@ type WindowMoveDelta = {
 let petWindow: BrowserWindow | undefined;
 let settingsWindow: BrowserWindow | undefined;
 let tray: Tray | undefined;
+
+app.setName(APP_DISPLAY_NAME);
 
 if (process.env.PINGU_USER_DATA_DIR) {
   app.setPath("userData", process.env.PINGU_USER_DATA_DIR);

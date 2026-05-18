@@ -6,6 +6,7 @@ import {
   type MenuItemConstructorOptions
 } from "electron";
 import { join } from "node:path";
+import { APP_DISPLAY_NAME } from "../shared/appIdentity";
 
 const TRAY_ICON_PATH = join(__dirname, "assets/tray-icon-template.png");
 const TRAY_ICON_SIZE = 18;
@@ -47,7 +48,7 @@ function createCommandMenuItems(
 export function installApplicationMenu(actions: TrayActions): void {
   const template: MenuItemConstructorOptions[] = [
     {
-      label: "Pingu",
+      label: APP_DISPLAY_NAME,
       submenu: createCommandMenuItems(actions)
     }
   ];
@@ -64,7 +65,7 @@ export function createTray(actions: TrayActions): Tray | undefined {
     }
 
     const tray = new Tray(icon);
-    tray.setToolTip("Pingu Desktop Pet");
+    tray.setToolTip(APP_DISPLAY_NAME);
     tray.setContextMenu(
       Menu.buildFromTemplate(createCommandMenuItems(actions))
     );

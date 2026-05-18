@@ -7,3 +7,6 @@ release/
 .superpowers/
 coverage/
 *.log
+build/Pingu.iconset/
+build/*.iconset/
+build/icon-[0-9]*.png

@@ -20,6 +20,17 @@
 - `npm run build`: typecheck, test, electron-vite build
 - `npm run dist:mac`, `npm run dist:win`: 패키징
 
+앱 표시 이름은 `src/shared/appIdentity.ts`의 `APP_DISPLAY_NAME`에서 관리합니다.
+macOS 메뉴바와 패키징 metadata의 이름은 `Pingu`로 맞추고, 배포용 아이콘 파일은
+`build/icon.icns`, `build/icon.ico`를 사용합니다. 아이콘 제작 기준은 `docs/app-icons.md`에
+분리되어 있습니다.
+
+개발 모드에서 실행되는 기본 Electron.app 번들의 OS 표시 이름은 코드의 `app.setName()`만으로
+바뀌지 않습니다. `npm run dev`는 `scripts/patch-electron-dev-app.mjs`를 먼저 실행해
+로컬 개발용 Electron.app의 `CFBundleName`, `CFBundleDisplayName`, `CFBundleIdentifier`,
+`CFBundleIconFile`을 `Pingu` 기준으로 맞춥니다. 패키징 앱은 `package.json`의
+electron-builder 설정을 따릅니다.
+
 ## 런타임 구조
 
 ```mermaid

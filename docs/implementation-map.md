@@ -7,6 +7,7 @@
 
 | 수정하려는 영역 | 먼저 볼 위치 | 메모 |
 |---|---|---|
+| 앱 이름/패키징 아이콘 | `src/shared/appIdentity.ts`, `package.json`, `scripts/patch-electron-dev-app.mjs`, `build/icon.*`, `docs/app-icons.md` | macOS 메뉴바 이름, 개발용 Electron.app metadata 패치, productName, 배포용 아이콘 |
 | 플로팅 펫 창 생성 | `src/main/windowService.ts` | 투명 frameless 96x96 `BrowserWindow`, always-on-top |
 | 앱 lifecycle / IPC | `src/main/main.ts` | IPC 등록, 펫 창 이동, 설정 창 생성, 앱 시작과 종료 |
 | 설정 창 BrowserWindow 옵션 | `src/main/settingsWindowOptions.ts` | transparent host, fixed size, rounded border 충돌 방지 |
@@ -26,6 +27,9 @@
 ## 현재 구현 완료
 
 - Electron 기반 데스크탑 앱 scaffold
+- macOS 메뉴바/패키징 표시 이름 `Pingu`
+- 임시 앱 아이콘 `build/icon.png`, `build/icon.icns`, `build/icon.ico`
+- 개발 모드 Electron.app 이름/아이콘 자동 패치
 - 투명 frameless floating pet window
 - 펫 창 96x96 고정
 - always-on-top 기본값과 토글
