@@ -1,10 +1,10 @@
 /// <reference types="vite/client" />
 
-import type { PinguDesktopApi } from "../../shared/types";
+import type { TinyPalsDesktopApi } from "../../shared/types";
 
 declare global {
   interface Window {
-    pinguDesktop: PinguDesktopApi;
+    tinyPalsDesktop: TinyPalsDesktopApi;
   }
 }
 

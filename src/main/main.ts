@@ -12,6 +12,7 @@ import type {
   WindowSize
 } from "../shared/types";
 import { createSettingsStore } from "./settingsStore";
+import { initMainSentry } from "./sentry";
 import { createSettingsWindowOptions } from "./settingsWindowOptions";
 import { createTray, installApplicationMenu } from "./trayService";
 import {
@@ -35,9 +36,11 @@ let tray: Tray | undefined;
 
 app.setName(APP_DISPLAY_NAME);
 
-if (process.env.PINGU_USER_DATA_DIR) {
-  app.setPath("userData", process.env.PINGU_USER_DATA_DIR);
+if (process.env.TINYPALS_USER_DATA_DIR) {
+  app.setPath("userData", process.env.TINYPALS_USER_DATA_DIR);
 }
+
+initMainSentry(app.getVersion());
 
 const store = createSettingsStore(app.getPath("userData"), getPrimaryDisplayBounds);
 const programmaticBoundsSuppressor = createProgrammaticBoundsSuppressor();
@@ -280,7 +283,7 @@ function registerIpc(): void {
 
   ipcMain.handle("settings:open-window", () => showOrCreateSettingsWindow());
 
-  ipcMain.handle("window:show-pingu", () => showOrCreateWindow());
+  ipcMain.handle("window:show-tinypals", () => showOrCreateWindow());
 
   ipcMain.handle("window:move-to-bottom-right", () =>
     movePetWindowToBottomRight()
@@ -334,7 +337,7 @@ void app.whenReady().then(async () => {
     onOpenSettings: () => {
       void showOrCreateSettingsWindow();
     },
-    onShowPingu: () => {
+    onShowTinyPals: () => {
       void showOrCreateWindow();
     }
   };

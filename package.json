@@ -1,14 +1,16 @@
 {
-  "name": "pingu-desktop-pet",
+  "name": "tinypals-desktop-pet",
   "version": "0.1.0",
-  "description": "A minimal floating desktop pet inspired by Pingu, with local-first settings and replaceable assets.",
+  "description": "A minimal floating desktop pet with local-first settings and replaceable assets.",
   "private": true,
   "main": "out/main/index.js",
   "type": "module",
   "scripts": {
     "predev": "node scripts/patch-electron-dev-app.mjs",
     "dev": "electron-vite dev",
-    "assets:pingu": "python3 scripts/build-pingu-hatch-assets.py",
+    "assets:tinypals": "python3 scripts/build-tinypals-hatch-assets.py",
+    "skill:tinypals:install": "python3 scripts/install-tinypals-hatch-pet-skill.py",
+    "skill:tinypals:validate": "python3 scripts/validate-tinypals-hatch-pet-skill.py",
     "build": "npm run typecheck && npm run test && electron-vite build",
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
@@ -17,10 +19,12 @@
     "dist:win": "npm run build && electron-builder --win"
   },
   "dependencies": {
+    "@sentry/electron": "^7.13.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
+    "@sentry/vite-plugin": "^5.3.0",
     "@types/node": "^22.15.0",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
@@ -37,8 +41,8 @@
     "npm": ">=10"
   },
   "build": {
-    "appId": "com.pingu.desktoppet",
-    "productName": "Pingu",
+    "appId": "com.tinypals.desktoppet",
+    "productName": "TinyPals",
     "files": [
       "out/**",
       "package.json"

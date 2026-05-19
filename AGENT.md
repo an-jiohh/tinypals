@@ -18,9 +18,9 @@ Summarize the intended product, UX style, and MVP scope before creating project 
 - Tech stack and runtime structure: `docs/architecture.md`
 - Where to modify each feature: `docs/implementation-map.md`
 - Product UX rules: `docs/ux-rules.md`
-- Character/IP research: `docs/research/pingu-character-research-2026-05-15.md`
-- Product intent: `docs/superpowers/specs/2026-05-16-pingu-desktop-pet-design.md`
-- Implementation plan history: `docs/superpowers/plans/2026-05-16-pingu-desktop-pet.md`
+- Character/IP safety: `docs/research/tinypals-ip-safety-2026-05-20.md`
+- Product intent: `docs/superpowers/specs/2026-05-16-tinypals-desktop-pet-design.md`
+- Implementation plan history: `docs/superpowers/plans/2026-05-16-tinypals-desktop-pet.md`
 
 ## Verification
 When code exists:

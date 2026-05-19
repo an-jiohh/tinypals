@@ -1,23 +1,23 @@
-import pinguManifestData from "../assets/pingu/pet.json";
-import pinguFailedAssetUrl from "../assets/pingu/pingu_failed.png";
-import pinguIdleAssetUrl from "../assets/pingu/pingu_idle.png";
-import pinguJumpingAssetUrl from "../assets/pingu/pingu_jumping.png";
-import pinguReviewAssetUrl from "../assets/pingu/pingu_review.png";
-import pinguRunningAssetUrl from "../assets/pingu/pingu_running.png";
-import pinguRunningLeftAssetUrl from "../assets/pingu/pingu_running_left.png";
-import pinguRunningRightAssetUrl from "../assets/pingu/pingu_running_right.png";
-import pinguWaitingAssetUrl from "../assets/pingu/pingu_waiting.png";
-import pinguWavingAssetUrl from "../assets/pingu/pingu_waving.png";
-import pinguTestManifestData from "../assets/pingu-test/pet.json";
-import pinguTestFailedAssetUrl from "../assets/pingu-test/pingu_failed.png";
-import pinguTestIdleAssetUrl from "../assets/pingu-test/pingu_idle.png";
-import pinguTestJumpingAssetUrl from "../assets/pingu-test/pingu_jumping.png";
-import pinguTestReviewAssetUrl from "../assets/pingu-test/pingu_review.png";
-import pinguTestRunningAssetUrl from "../assets/pingu-test/pingu_running.png";
-import pinguTestRunningLeftAssetUrl from "../assets/pingu-test/pingu_running_left.png";
-import pinguTestRunningRightAssetUrl from "../assets/pingu-test/pingu_running_right.png";
-import pinguTestWaitingAssetUrl from "../assets/pingu-test/pingu_waiting.png";
-import pinguTestWavingAssetUrl from "../assets/pingu-test/pingu_waving.png";
+import tinypalsManifestData from "../assets/tinypals/pet.json";
+import tinypalsFailedAssetUrl from "../assets/tinypals/tinypals_failed.png";
+import tinypalsIdleAssetUrl from "../assets/tinypals/tinypals_idle.png";
+import tinypalsJumpingAssetUrl from "../assets/tinypals/tinypals_jumping.png";
+import tinypalsReviewAssetUrl from "../assets/tinypals/tinypals_review.png";
+import tinypalsRunningAssetUrl from "../assets/tinypals/tinypals_running.png";
+import tinypalsRunningLeftAssetUrl from "../assets/tinypals/tinypals_running_left.png";
+import tinypalsRunningRightAssetUrl from "../assets/tinypals/tinypals_running_right.png";
+import tinypalsWaitingAssetUrl from "../assets/tinypals/tinypals_waiting.png";
+import tinypalsWavingAssetUrl from "../assets/tinypals/tinypals_waving.png";
+import tinypalsTestManifestData from "../assets/tinypals-test/pet.json";
+import tinypalsTestFailedAssetUrl from "../assets/tinypals-test/tinypals_failed.png";
+import tinypalsTestIdleAssetUrl from "../assets/tinypals-test/tinypals_idle.png";
+import tinypalsTestJumpingAssetUrl from "../assets/tinypals-test/tinypals_jumping.png";
+import tinypalsTestReviewAssetUrl from "../assets/tinypals-test/tinypals_review.png";
+import tinypalsTestRunningAssetUrl from "../assets/tinypals-test/tinypals_running.png";
+import tinypalsTestRunningLeftAssetUrl from "../assets/tinypals-test/tinypals_running_left.png";
+import tinypalsTestRunningRightAssetUrl from "../assets/tinypals-test/tinypals_running_right.png";
+import tinypalsTestWaitingAssetUrl from "../assets/tinypals-test/tinypals_waiting.png";
+import tinypalsTestWavingAssetUrl from "../assets/tinypals-test/tinypals_waving.png";
 import { PET_ASSET_STATES } from "../../shared/assets";
 import type {
   PetAssetManifest,
@@ -40,35 +40,35 @@ export type PetAssetPackOption = {
 
 export const DEFAULT_PET_ASSET_PACK_ID = "dough-penguin";
 
-const pinguAssetFiles = {
-  idle: pinguIdleAssetUrl,
-  "running-right": pinguRunningRightAssetUrl,
-  "running-left": pinguRunningLeftAssetUrl,
-  waving: pinguWavingAssetUrl,
-  jumping: pinguJumpingAssetUrl,
-  failed: pinguFailedAssetUrl,
-  waiting: pinguWaitingAssetUrl,
-  running: pinguRunningAssetUrl,
-  review: pinguReviewAssetUrl
+const tinypalsAssetFiles = {
+  idle: tinypalsIdleAssetUrl,
+  "running-right": tinypalsRunningRightAssetUrl,
+  "running-left": tinypalsRunningLeftAssetUrl,
+  waving: tinypalsWavingAssetUrl,
+  jumping: tinypalsJumpingAssetUrl,
+  failed: tinypalsFailedAssetUrl,
+  waiting: tinypalsWaitingAssetUrl,
+  running: tinypalsRunningAssetUrl,
+  review: tinypalsReviewAssetUrl
 } satisfies PetAssetFileMap;
 
-const pinguTestAssetFiles = {
-  idle: pinguTestIdleAssetUrl,
-  "running-right": pinguTestRunningRightAssetUrl,
-  "running-left": pinguTestRunningLeftAssetUrl,
-  waving: pinguTestWavingAssetUrl,
-  jumping: pinguTestJumpingAssetUrl,
-  failed: pinguTestFailedAssetUrl,
-  waiting: pinguTestWaitingAssetUrl,
-  running: pinguTestRunningAssetUrl,
-  review: pinguTestReviewAssetUrl
+const tinypalsTestAssetFiles = {
+  idle: tinypalsTestIdleAssetUrl,
+  "running-right": tinypalsTestRunningRightAssetUrl,
+  "running-left": tinypalsTestRunningLeftAssetUrl,
+  waving: tinypalsTestWavingAssetUrl,
+  jumping: tinypalsTestJumpingAssetUrl,
+  failed: tinypalsTestFailedAssetUrl,
+  waiting: tinypalsTestWaitingAssetUrl,
+  running: tinypalsTestRunningAssetUrl,
+  review: tinypalsTestReviewAssetUrl
 } satisfies PetAssetFileMap;
 
 export const petAssetPacks = [
-  createPetAssetPack(pinguManifestData as PetAssetManifest, pinguAssetFiles),
+  createPetAssetPack(tinypalsManifestData as PetAssetManifest, tinypalsAssetFiles),
   createPetAssetPack(
-    pinguTestManifestData as PetAssetManifest,
-    pinguTestAssetFiles
+    tinypalsTestManifestData as PetAssetManifest,
+    tinypalsTestAssetFiles
   )
 ] as const satisfies readonly PetAssetPack[];
 

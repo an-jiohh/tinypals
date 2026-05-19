@@ -1,1 +1,1 @@
-export const APP_DISPLAY_NAME = "Pingu";
+export const APP_DISPLAY_NAME = "TinyPals";

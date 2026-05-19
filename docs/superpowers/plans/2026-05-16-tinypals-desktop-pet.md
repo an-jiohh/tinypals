@@ -1,8 +1,8 @@
-# Pingu Desktop Pet Implementation Plan
+# TinyPals Desktop Pet Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build the v1 Electron desktop app where a small Pingu-inspired pet floats on the desktop, reacts to basic interactions, and stores minimal local settings.
+**Goal:** Build the v1 Electron desktop app where a small TinyPals-inspired pet floats on the desktop, reacts to basic interactions, and stores minimal local settings.
 
 **Architecture:** Use Electron for OS-level window, tray, and settings responsibilities; React for the small pet UI and settings popover; shared TypeScript modules for state, settings, and asset validation. Keep timer and schedule features out of v1, but define reserved pet events so future modules can attach without rewriting the pet state model.
 
@@ -12,8 +12,8 @@
 
 ## Source Documents
 
-- Product design: `docs/superpowers/specs/2026-05-16-pingu-desktop-pet-design.md`
-- Character research: `docs/research/pingu-character-research-2026-05-15.md`
+- Product design: `docs/superpowers/specs/2026-05-16-tinypals-desktop-pet-design.md`
+- Character/IP safety: `docs/research/tinypals-ip-safety-2026-05-20.md`
 
 ## File Structure
 
@@ -32,14 +32,14 @@ Create the app as a TypeScript Electron project:
 - `src/main/windowService.ts`: frameless transparent floating window creation and bounds handling.
 - `src/main/trayService.ts`: tray menu creation.
 - `src/main/main.ts`: app lifecycle, IPC handlers, services wiring.
-- `src/preload/preload.ts`: safe `window.pinguDesktop` API exposure.
+- `src/preload/preload.ts`: safe `window.tinyPalsDesktop` API exposure.
 - `src/renderer/index.html`: renderer HTML entry.
 - `src/renderer/src/main.tsx`: React mount.
 - `src/renderer/src/App.tsx`: pet UI state orchestration and popover.
 - `src/renderer/src/styles.css`: floating pet, animation, and popover styling.
 - `src/renderer/src/global.d.ts`: renderer global API typing.
-- `src/renderer/assets/pingu/manifest.json`: temporary asset manifest.
-- `src/renderer/assets/pingu/*.svg`: temporary SVG states.
+- `src/renderer/assets/tinypals/manifest.json`: temporary asset manifest.
+- `src/renderer/assets/tinypals/*.svg`: temporary SVG states.
 - `src/shared/*.test.ts`: unit tests for state, settings, and assets.
 
 ## Task 1: Project Scaffold
@@ -61,9 +61,9 @@ Create `package.json` with this content:
 
 ```json
 {
-  "name": "pingu-desktop-pet",
+  "name": "tinypals-desktop-pet",
   "version": "0.1.0",
-  "description": "A minimal floating desktop pet inspired by Pingu, with local-first settings and replaceable assets.",
+  "description": "A minimal floating desktop pet inspired by TinyPals, with local-first settings and replaceable assets.",
   "private": true,
   "main": "out/main/index.js",
   "type": "module",
@@ -97,8 +97,8 @@ Create `package.json` with this content:
     "npm": ">=10"
   },
   "build": {
-    "appId": "com.pingu.desktoppet",
-    "productName": "Pingu Desktop Pet",
+    "appId": "com.tinypals.desktoppet",
+    "productName": "TinyPals Desktop Pet",
     "files": [
       "out/**",
       "package.json"
@@ -360,7 +360,7 @@ export type AppInfo = {
   platform: NodeJS.Platform;
 };
 
-export type PinguDesktopApi = {
+export type TinyPalsDesktopApi = {
   getSettings(): Promise<AppSettings>;
   updateSettings(patch: Partial<AppSettings>): Promise<AppSettings>;
   resetWindowPosition(): Promise<AppSettings>;
@@ -495,7 +495,7 @@ describe("settings", () => {
       windowBounds: { x: 24, y: 24, width: 96, height: 96 },
       alwaysOnTop: true,
       launchAtLogin: false,
-      selectedAssetPack: "temporary-pingu"
+      selectedAssetPack: "temporary-tinypals"
     });
   });
 
@@ -570,7 +570,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   },
   alwaysOnTop: true,
   launchAtLogin: false,
-  selectedAssetPack: "temporary-pingu"
+  selectedAssetPack: "temporary-tinypals"
 };
 
 function clamp(value: number, min: number, max: number): number {
@@ -650,8 +650,8 @@ import { PET_ASSET_STATES, getAssetForMood, validateAssetManifest } from "./asse
 import type { PetAssetManifest } from "./petTypes";
 
 const completeManifest: PetAssetManifest = {
-  id: "temporary-pingu",
-  displayName: "Temporary Pingu",
+  id: "temporary-tinypals",
+  displayName: "Temporary TinyPals",
   license: "placeholder",
   states: {
     idle: "idle.svg",
@@ -756,40 +756,40 @@ git commit -m "feat: add pet asset validation"
 ## Task 5: Temporary SVG Asset Pack
 
 **Files:**
-- Create: `src/renderer/assets/pingu/manifest.json`
-- Create: `src/renderer/assets/pingu/idle.svg`
-- Create: `src/renderer/assets/pingu/greet.svg`
-- Create: `src/renderer/assets/pingu/dragging.svg`
-- Create: `src/renderer/assets/pingu/sleepy.svg`
-- Create: `src/renderer/assets/pingu/happy.svg`
-- Create: `src/renderer/assets/pingu/attention.svg`
+- Create: `src/renderer/assets/tinypals/manifest.json`
+- Create: `src/renderer/assets/tinypals/idle.svg`
+- Create: `src/renderer/assets/tinypals/greet.svg`
+- Create: `src/renderer/assets/tinypals/dragging.svg`
+- Create: `src/renderer/assets/tinypals/sleepy.svg`
+- Create: `src/renderer/assets/tinypals/happy.svg`
+- Create: `src/renderer/assets/tinypals/attention.svg`
 
 - [ ] **Step 1: Create manifest**
 
-Create `src/renderer/assets/pingu/manifest.json`:
+Create `src/renderer/assets/tinypals/manifest.json`:
 
 ```json
 {
-  "id": "temporary-pingu",
-  "displayName": "Temporary Pingu",
+  "id": "temporary-tinypals",
+  "displayName": "Temporary TinyPals",
   "license": "placeholder",
   "states": {
-    "idle": "/assets/pingu/idle.svg",
-    "greet": "/assets/pingu/greet.svg",
-    "dragging": "/assets/pingu/dragging.svg",
-    "sleepy": "/assets/pingu/sleepy.svg",
-    "happy": "/assets/pingu/happy.svg",
-    "attention": "/assets/pingu/attention.svg"
+    "idle": "/assets/tinypals/idle.svg",
+    "greet": "/assets/tinypals/greet.svg",
+    "dragging": "/assets/tinypals/dragging.svg",
+    "sleepy": "/assets/tinypals/sleepy.svg",
+    "happy": "/assets/tinypals/happy.svg",
+    "attention": "/assets/tinypals/attention.svg"
   }
 }
 ```
 
 - [ ] **Step 2: Create idle SVG**
 
-Create `src/renderer/assets/pingu/idle.svg`:
+Create `src/renderer/assets/tinypals/idle.svg`:
 
 ```xml
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Temporary Pingu idle">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Temporary TinyPals idle">
   <ellipse cx="48" cy="82" rx="22" ry="6" fill="#D9DEE8"/>
   <ellipse cx="48" cy="48" rx="28" ry="34" fill="#1E2430"/>
   <ellipse cx="48" cy="56" rx="20" ry="25" fill="#F7F8F2"/>
@@ -807,10 +807,10 @@ Create `src/renderer/assets/pingu/idle.svg`:
 
 - [ ] **Step 3: Create greet SVG**
 
-Create `src/renderer/assets/pingu/greet.svg`:
+Create `src/renderer/assets/tinypals/greet.svg`:
 
 ```xml
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Temporary Pingu greeting">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Temporary TinyPals greeting">
   <ellipse cx="48" cy="82" rx="22" ry="6" fill="#D9DEE8"/>
   <ellipse cx="48" cy="48" rx="28" ry="34" fill="#1E2430"/>
   <ellipse cx="48" cy="56" rx="20" ry="25" fill="#F7F8F2"/>
@@ -828,10 +828,10 @@ Create `src/renderer/assets/pingu/greet.svg`:
 
 - [ ] **Step 4: Create dragging SVG**
 
-Create `src/renderer/assets/pingu/dragging.svg`:
+Create `src/renderer/assets/tinypals/dragging.svg`:
 
 ```xml
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Temporary Pingu dragging">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Temporary TinyPals dragging">
   <ellipse cx="48" cy="82" rx="22" ry="6" fill="#D9DEE8"/>
   <g transform="rotate(-7 48 48)">
     <ellipse cx="48" cy="48" rx="28" ry="34" fill="#1E2430"/>
@@ -851,10 +851,10 @@ Create `src/renderer/assets/pingu/dragging.svg`:
 
 - [ ] **Step 5: Create sleepy SVG**
 
-Create `src/renderer/assets/pingu/sleepy.svg`:
+Create `src/renderer/assets/tinypals/sleepy.svg`:
 
 ```xml
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Temporary Pingu sleepy">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Temporary TinyPals sleepy">
   <ellipse cx="48" cy="82" rx="22" ry="6" fill="#D9DEE8"/>
   <ellipse cx="48" cy="50" rx="28" ry="32" fill="#1E2430"/>
   <ellipse cx="48" cy="58" rx="20" ry="23" fill="#F7F8F2"/>
@@ -870,10 +870,10 @@ Create `src/renderer/assets/pingu/sleepy.svg`:
 
 - [ ] **Step 6: Create happy SVG**
 
-Create `src/renderer/assets/pingu/happy.svg`:
+Create `src/renderer/assets/tinypals/happy.svg`:
 
 ```xml
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Temporary Pingu happy">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Temporary TinyPals happy">
   <ellipse cx="48" cy="86" rx="22" ry="6" fill="#D9DEE8"/>
   <ellipse cx="48" cy="46" rx="28" ry="34" fill="#1E2430"/>
   <ellipse cx="48" cy="54" rx="20" ry="25" fill="#F7F8F2"/>
@@ -889,10 +889,10 @@ Create `src/renderer/assets/pingu/happy.svg`:
 
 - [ ] **Step 7: Create attention SVG**
 
-Create `src/renderer/assets/pingu/attention.svg`:
+Create `src/renderer/assets/tinypals/attention.svg`:
 
 ```xml
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Temporary Pingu attention">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Temporary TinyPals attention">
   <ellipse cx="48" cy="82" rx="22" ry="6" fill="#D9DEE8"/>
   <ellipse cx="48" cy="48" rx="28" ry="34" fill="#1E2430"/>
   <ellipse cx="48" cy="56" rx="20" ry="25" fill="#F7F8F2"/>
@@ -913,7 +913,7 @@ Create `src/renderer/assets/pingu/attention.svg`:
 Run:
 
 ```bash
-git add src/renderer/assets/pingu
+git add src/renderer/assets/tinypals
 git commit -m "feat: add temporary pet asset pack"
 ```
 
@@ -947,7 +947,7 @@ afterEach(async () => {
 
 describe("settingsStore", () => {
   it("loads defaults when no settings file exists", async () => {
-    tempDir = await mkdtemp(join(tmpdir(), "pingu-settings-"));
+    tempDir = await mkdtemp(join(tmpdir(), "tinypals-settings-"));
     const store = createSettingsStore(tempDir, () => display);
 
     await expect(store.load()).resolves.toMatchObject({
@@ -957,7 +957,7 @@ describe("settingsStore", () => {
   });
 
   it("persists merged settings", async () => {
-    tempDir = await mkdtemp(join(tmpdir(), "pingu-settings-"));
+    tempDir = await mkdtemp(join(tmpdir(), "tinypals-settings-"));
     const store = createSettingsStore(tempDir, () => display);
 
     await store.save({ alwaysOnTop: false });
@@ -968,12 +968,12 @@ describe("settingsStore", () => {
   });
 
   it("recovers from invalid json", async () => {
-    tempDir = await mkdtemp(join(tmpdir(), "pingu-settings-"));
+    tempDir = await mkdtemp(join(tmpdir(), "tinypals-settings-"));
     await writeFile(join(tempDir, "settings.json"), "{bad json", "utf8");
     const store = createSettingsStore(tempDir, () => display);
 
     await expect(store.load()).resolves.toMatchObject({
-      selectedAssetPack: "temporary-pingu"
+      selectedAssetPack: "temporary-tinypals"
     });
   });
 });
@@ -1126,10 +1126,10 @@ export function createTray(onShow: () => void): Tray | undefined {
   }
 
   const tray = new Tray(nativeImage.createEmpty());
-  tray.setToolTip("Pingu Desktop Pet");
+  tray.setToolTip("TinyPals Desktop Pet");
   tray.setContextMenu(
     Menu.buildFromTemplate([
-      { label: "Show Pingu", click: onShow },
+      { label: "Show TinyPals", click: onShow },
       { type: "separator" },
       { label: "Quit", click: () => app.quit() }
     ])
@@ -1144,9 +1144,9 @@ Create `src/preload/preload.ts`:
 
 ```ts
 import { contextBridge, ipcRenderer } from "electron";
-import type { AppSettings, PinguDesktopApi } from "../shared/types";
+import type { AppSettings, TinyPalsDesktopApi } from "../shared/types";
 
-const api: PinguDesktopApi = {
+const api: TinyPalsDesktopApi = {
   getSettings: () => ipcRenderer.invoke("settings:get") as Promise<AppSettings>,
   updateSettings: (patch) => ipcRenderer.invoke("settings:update", patch) as Promise<AppSettings>,
   resetWindowPosition: () => ipcRenderer.invoke("window:reset-position") as Promise<AppSettings>,
@@ -1156,7 +1156,7 @@ const api: PinguDesktopApi = {
   getAppInfo: () => ipcRenderer.invoke("app:info")
 };
 
-contextBridge.exposeInMainWorld("pinguDesktop", api);
+contextBridge.exposeInMainWorld("tinyPalsDesktop", api);
 ```
 
 - [ ] **Step 4: Add renderer global typing**
@@ -1164,11 +1164,11 @@ contextBridge.exposeInMainWorld("pinguDesktop", api);
 Create `src/renderer/src/global.d.ts`:
 
 ```ts
-import type { PinguDesktopApi } from "../../shared/types";
+import type { TinyPalsDesktopApi } from "../../shared/types";
 
 declare global {
   interface Window {
-    pinguDesktop: PinguDesktopApi;
+    tinyPalsDesktop: TinyPalsDesktopApi;
   }
 }
 
@@ -1315,7 +1315,7 @@ Create `src/renderer/index.html`:
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pingu Desktop Pet</title>
+    <title>TinyPals Desktop Pet</title>
   </head>
   <body>
     <div id="root"></div>
@@ -1347,7 +1347,7 @@ Create `src/renderer/src/App.tsx`:
 
 ```tsx
 import { useEffect, useMemo, useReducer, useRef, useState, type PointerEvent } from "react";
-import manifest from "../assets/pingu/manifest.json";
+import manifest from "../assets/tinypals/manifest.json";
 import { getAssetForMood, validateAssetManifest } from "../../shared/assets";
 import { createInitialPetState, reducePetState } from "../../shared/petStateMachine";
 import type { AppSettings } from "../../shared/types";
@@ -1369,7 +1369,7 @@ export function App(): JSX.Element {
   const assetPath = getAssetForMood(petManifest, petState.mood);
 
   useEffect(() => {
-    void window.pinguDesktop.getSettings().then(setSettings);
+    void window.tinyPalsDesktop.getSettings().then(setSettings);
     dispatchPet(nowEvent("app_started"));
   }, []);
 
@@ -1385,7 +1385,7 @@ export function App(): JSX.Element {
 
   async function updateAlwaysOnTop(enabled: boolean): Promise<void> {
     try {
-      const next = await window.pinguDesktop.setAlwaysOnTop(enabled);
+      const next = await window.tinyPalsDesktop.setAlwaysOnTop(enabled);
       setSettings(next);
       dispatchPet(nowEvent("settings_changed"));
       setMessage("Saved");
@@ -1396,7 +1396,7 @@ export function App(): JSX.Element {
 
   async function updateLaunchAtLogin(enabled: boolean): Promise<void> {
     try {
-      const next = await window.pinguDesktop.updateSettings({ launchAtLogin: enabled });
+      const next = await window.tinyPalsDesktop.updateSettings({ launchAtLogin: enabled });
       setSettings(next);
       dispatchPet(nowEvent("settings_changed"));
       setMessage("Saved");
@@ -1407,7 +1407,7 @@ export function App(): JSX.Element {
 
   async function resetPosition(): Promise<void> {
     try {
-      const next = await window.pinguDesktop.resetWindowPosition();
+      const next = await window.tinyPalsDesktop.resetWindowPosition();
       setSettings(next);
       dispatchPet(nowEvent("settings_changed"));
       setMessage("Position reset");
@@ -1454,7 +1454,7 @@ export function App(): JSX.Element {
       screenY: event.screenY,
       moved: true
     };
-    const next = await window.pinguDesktop.moveWindowBy({ x: deltaX, y: deltaY });
+    const next = await window.tinyPalsDesktop.moveWindowBy({ x: deltaX, y: deltaY });
     setSettings(next);
   }
 
@@ -1472,7 +1472,7 @@ export function App(): JSX.Element {
     <main className="app-shell">
       <button
         className={`pet-button pet-${petState.mood}`}
-        aria-label="Open Pingu settings"
+        aria-label="Open TinyPals settings"
         onClick={handlePetClick}
         onPointerDown={handlePointerDown}
         onPointerMove={(event) => void handlePointerMove(event)}
@@ -1483,8 +1483,8 @@ export function App(): JSX.Element {
       </button>
 
       {popoverOpen && settings ? (
-        <section className="popover" aria-label="Pingu settings">
-          <div className="popover-title">Pingu</div>
+        <section className="popover" aria-label="TinyPals settings">
+          <div className="popover-title">TinyPals</div>
           <label>
             <span>Always on top</span>
             <input
@@ -1504,7 +1504,7 @@ export function App(): JSX.Element {
           <button type="button" onClick={() => void resetPosition()}>
             Reset position
           </button>
-          <button type="button" onClick={() => void window.pinguDesktop.quit()}>
+          <button type="button" onClick={() => void window.tinyPalsDesktop.quit()}>
             Quit
           </button>
           {message ? <p className="message">{message}</p> : null}
@@ -1730,7 +1730,7 @@ Expected: Electron opens a transparent frameless floating pet window.
 Check these items manually:
 
 ```text
-1. A small temporary Pingu appears.
+1. A small temporary TinyPals appears.
 2. The pet window stays above normal windows.
 3. Clicking the pet opens the settings popover.
 4. Always on top can be toggled.
@@ -1771,13 +1771,13 @@ If no changes were required, do not create an empty commit.
 Create `README.md`:
 
 ````md
-# Pingu Desktop Pet
+# TinyPals Desktop Pet
 
-Pingu Desktop Pet is a minimal floating desktop pet app. The first version focuses on a small, quiet, always-on-top character that can be moved around the desktop and stores local settings.
+TinyPals Desktop Pet is a minimal floating desktop pet app. The first version focuses on a small, quiet, always-on-top character that can be moved around the desktop and stores local settings.
 
 ## IP Notice
 
-This project is designed around a licensed-use assumption for official Pingu IP. Until licensing is confirmed, the app uses placeholder SVG assets and a replaceable asset pack structure.
+This project now uses TinyPals as its own product name. Third-party character IP assets, sounds, names, and worldbuilding should not be used unless rights are confirmed; the app uses custom replaceable asset packs.
 
 ## Requirements
 
@@ -1797,9 +1797,9 @@ npm run build
 
 ## Product Documents
 
-- `docs/research/pingu-character-research-2026-05-15.md`
-- `docs/superpowers/specs/2026-05-16-pingu-desktop-pet-design.md`
-- `docs/superpowers/plans/2026-05-16-pingu-desktop-pet.md`
+- `docs/research/tinypals-ip-safety-2026-05-20.md`
+- `docs/superpowers/specs/2026-05-16-tinypals-desktop-pet-design.md`
+- `docs/superpowers/plans/2026-05-16-tinypals-desktop-pet.md`
 
 ## v1 Scope
 
@@ -1818,7 +1818,7 @@ Excluded:
 - Schedule management
 - Statistics
 - Cloud sync
-- Official Pingu sound effects
+- Official TinyPals sound effects
 ````
 
 - [ ] **Step 2: Run final checks**
@@ -1853,4 +1853,4 @@ git commit -m "docs: add project handoff"
 - Electron main, preload, and renderer boundaries are covered by Tasks 7 and 8.
 - Local settings storage is covered by Tasks 3, 6, and 9.
 - macOS and Windows manual verification is covered by Task 9.
-- No task requires official Pingu assets or official Pingu sound.
+- No task requires third-party character IP assets or sounds.

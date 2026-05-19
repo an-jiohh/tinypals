@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build Pingu renderer row sprites from a hatch-pet atlas.
+"""Build TinyPals renderer row sprites from a hatch-pet atlas.
 
 The source must be the hatch-pet final atlas, not the QA contact sheet. The
 contact sheet has checkerboard, labels, and borders baked into RGB pixels, so
@@ -27,20 +27,20 @@ BASE_ATLAS_WIDTH = COLUMNS * BASE_CELL_WIDTH
 BASE_ATLAS_HEIGHT = ROWS * BASE_CELL_HEIGHT
 
 ROW_SPECS = [
-    ("idle", "pingu_idle.png", 6, 6, True),
-    ("running-right", "pingu_running_right.png", 8, 10, True),
-    ("running-left", "pingu_running_left.png", 8, 10, True),
-    ("waving", "pingu_waving.png", 4, 8, False),
-    ("jumping", "pingu_jumping.png", 5, 10, False),
-    ("failed", "pingu_failed.png", 8, 8, False),
-    ("waiting", "pingu_waiting.png", 6, 6, True),
-    ("running", "pingu_running.png", 6, 8, True),
-    ("review", "pingu_review.png", 6, 6, True),
+    ("idle", "tinypals_idle.png", 6, 6, True),
+    ("running-right", "tinypals_running_right.png", 8, 10, True),
+    ("running-left", "tinypals_running_left.png", 8, 10, True),
+    ("waving", "tinypals_waving.png", 4, 8, False),
+    ("jumping", "tinypals_jumping.png", 5, 10, False),
+    ("failed", "tinypals_failed.png", 8, 8, False),
+    ("waiting", "tinypals_waiting.png", 6, 6, True),
+    ("running", "tinypals_running.png", 6, 8, True),
+    ("review", "tinypals_review.png", 6, 6, True),
 ]
 
 
 def default_source_atlas() -> Path:
-    local_2x_source = Path("src/renderer/assets/pingu/spritesheet-2x.png")
+    local_2x_source = Path("src/renderer/assets/tinypals/spritesheet-2x.png")
     if local_2x_source.is_file():
         return local_2x_source
 
@@ -200,7 +200,7 @@ def main() -> int:
     )
     parser.add_argument(
         "--output-dir",
-        default="src/renderer/assets/pingu",
+        default="src/renderer/assets/tinypals",
         help="Directory where renderer assets are written.",
     )
     args = parser.parse_args()

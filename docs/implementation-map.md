@@ -11,24 +11,24 @@
 | 플로팅 펫 창 생성 | `src/main/windowService.ts` | 투명 frameless resizable `BrowserWindow`, always-on-top |
 | 앱 lifecycle / IPC | `src/main/main.ts` | IPC 등록, 펫 창 이동, 설정 창 생성, 앱 시작과 종료 |
 | 설정 창 BrowserWindow 옵션 | `src/main/settingsWindowOptions.ts` | transparent host, fixed size, rounded border 충돌 방지 |
-| 트레이/메뉴바 메뉴 | `src/main/trayService.ts`, `src/main/assets/tray-icon-template.png` | `Open Settings`, `Show Pingu`, `Quit`, template tray icon |
+| 트레이/메뉴바 메뉴 | `src/main/trayService.ts`, `src/main/assets/tray-icon-template.png` | `Open Settings`, `Show TinyPals`, `Quit`, template tray icon |
 | 설정 저장 | `src/main/settingsStore.ts` | Electron `userData` 아래 `settings.json` 읽기/쓰기 |
 | 설정 기본값/정규화 | `src/shared/settings.ts` | 오른쪽 아래 기본 bounds, 화면 밖 위치 복구, 96:104 비율 resize bounds |
 | programmatic bounds event 방지 | `src/main/windowResize.ts` | 코드가 호출한 bounds 변경 이벤트를 저장 이벤트와 구분 |
-| preload API | `src/preload/preload.ts` | `window.pinguDesktop` 노출, settings change 구독 |
-| API 타입 | `src/shared/types.ts` | `PinguDesktopApi`, `AppSettings` |
+| preload API | `src/preload/preload.ts` | `window.tinyPalsDesktop` 노출, settings change 구독 |
+| API 타입 | `src/shared/types.ts` | `TinyPalsDesktopApi`, `AppSettings` |
 | 펫 상태 모델 | `src/shared/petTypes.ts`, `src/shared/petStateMachine.ts` | 상태, 이벤트, reducer |
 | renderer UI | `src/renderer/src/App.tsx` | 펫 클릭 반응, 드래그, 설정 창 route, command row 처리 |
 | 캐릭터 registry | `src/renderer/src/petAssetRegistry.ts` | 설정 선택지와 정적 asset pack import |
 | 스타일/애니메이션 | `src/renderer/src/styles.css` | 펫 애니메이션, Notion 스타일 설정 창, rounded border |
 | 설정 창 스타일 회귀 테스트 | `src/renderer/src/settingsStyles.test.ts` | 라운드 유지와 transparent shell 조건 확인 |
-| asset pack | `src/renderer/assets/pingu/*`, `src/renderer/assets/pingu-test/*` | `pet.json`과 상태별 PNG row spritesheet |
+| asset pack | `src/renderer/assets/tinypals/*`, `src/renderer/assets/tinypals-test/*` | `pet.json`과 상태별 PNG row spritesheet |
 | asset 검증 | `src/shared/assets.ts` | 필수 상태 asset 누락 검증과 fallback |
 
 ## 현재 구현 완료
 
 - Electron 기반 데스크탑 앱 scaffold
-- macOS 메뉴바/패키징 표시 이름 `Pingu`
+- macOS 메뉴바/패키징 표시 이름 `TinyPals`
 - 임시 앱 아이콘 `build/icon.png`, `build/icon.icns`, `build/icon.ico`
 - 개발 모드 Electron.app 이름/아이콘 자동 패치
 - 투명 frameless floating pet window
@@ -36,9 +36,9 @@
 - always-on-top 기본값과 토글
 - 펫 드래그 위치 이동과 위치 저장
 - 펫 클릭 시 `user_clicked` 반응만 처리
-- 트레이/메뉴바에서 `Open Settings`, `Show Pingu`, `Quit` 제공
+- 트레이/메뉴바에서 `Open Settings`, `Show TinyPals`, `Quit` 제공
 - 별도 Notion 스타일 설정 창
-- `Always on Top`, `Start at Login`, `Pet Character`, `Move to Bottom Right`, `Show Pingu`, `Quit` UI
+- `Always on Top`, `Start at Login`, `Pet Character`, `Move to Bottom Right`, `Show TinyPals`, `Quit` UI
 - 설정 창 라운드 모서리와 균일한 inset border
 - 로컬 `settings.json` 저장과 기본값 복구
 - 오른쪽 아래 기본 위치와 화면 밖 window bounds 정규화
@@ -46,7 +46,7 @@
 - `idle`, `running-right`, `running-left`, `waving`, `jumping`, `failed`, `waiting`, `running`, `review` 상태
 - 타이머/일정 기능 연결용 reserved event 타입
 - 단위 테스트와 build pipeline
-- 수동 검증용 `PINGU_USER_DATA_DIR` 환경 변수
+- 수동 검증용 `TINYPALS_USER_DATA_DIR` 환경 변수
 
 ## 아직 구현하지 않음
 
@@ -55,7 +55,7 @@
 - 통계, 리포트, CSV export
 - 클라우드 동기화
 - 자동 업데이트
-- 공식 Pingu asset과 sound
+- 공식 또는 타사 IP asset과 sound
 - 패키징된 앱 기준 login item 동작 검증
 - macOS/Windows 배포 산출물 검증
 
@@ -88,11 +88,11 @@ v1에는 schedule 저장소가 없습니다. 일정 기능을 추가할 때는 m
 
 - 새 asset 폴더의 `pet.json` `id`, `license`, `displayName`, `description`을 asset pack에 맞게 변경
 - hatch-pet 2x 투명 atlas를 새 asset 폴더의 `spritesheet-2x.png`로 배치
-- `npm run assets:pingu`를 실행해 atlas 검증과 상태별 PNG row spritesheet 재생성을 함께 수행
+- `npm run assets:tinypals`를 실행해 atlas 검증과 상태별 PNG row spritesheet 재생성을 함께 수행
 - frame 크기나 frame count가 바뀌면 `pet.json`과 asset 검증 테스트를 함께 갱신
 - `src/renderer/src/petAssetRegistry.test.ts`에 새 pack 노출과 manifest 검증을 반영
 - QA contact sheet는 배경/라벨/border가 RGB로 합성된 검토 이미지이므로 추출 원본으로 사용하지 않음
-- 공식 IP 사용 전 라이선스 확인 문서를 업데이트
+- 타사 IP 사용 전 라이선스 확인 문서를 업데이트
 
 ### 로그인 실행 안정화
 
@@ -128,7 +128,7 @@ npm run build
 창/OS 동작을 건드렸다면 추가로 확인:
 
 ```bash
-PINGU_USER_DATA_DIR=/private/tmp/pingu-desktop-pet-user-data npm run dev
+TINYPALS_USER_DATA_DIR=/private/tmp/tinypals-desktop-pet-user-data npm run dev
 ```
 
 수동 확인 항목:
@@ -143,8 +143,8 @@ PINGU_USER_DATA_DIR=/private/tmp/pingu-desktop-pet-user-data npm run dev
 
 ## 기존 문서와의 관계
 
-- 캐릭터/IP 기준은 `docs/research/pingu-character-research-2026-05-15.md`를 따른다.
+- 캐릭터/IP 기준은 `docs/research/tinypals-ip-safety-2026-05-20.md`를 따른다.
 - 현재 구현 기준은 `README.md`, `docs/architecture.md`, 이 문서를 우선한다.
-- `docs/superpowers/specs/2026-05-16-pingu-desktop-pet-design.md`와
-  `docs/superpowers/plans/2026-05-16-pingu-desktop-pet.md`는 과거 결정 기록으로 유지한다.
+- `docs/superpowers/specs/2026-05-16-tinypals-desktop-pet-design.md`와
+  `docs/superpowers/plans/2026-05-16-tinypals-desktop-pet.md`는 과거 결정 기록으로 유지한다.
   현재 문서와 충돌하면 현재 문서를 우선한다.

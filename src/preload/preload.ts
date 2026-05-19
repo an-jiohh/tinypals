@@ -1,12 +1,12 @@
 import { contextBridge, ipcRenderer } from "electron";
 import type { IpcRendererEvent } from "electron";
-import type { AppInfo, AppSettings, PinguDesktopApi } from "../shared/types";
+import type { AppInfo, AppSettings, TinyPalsDesktopApi } from "../shared/types";
 
 function invoke<T>(channel: string, ...args: unknown[]): Promise<T> {
   return ipcRenderer.invoke(channel, ...args) as Promise<T>;
 }
 
-const api: PinguDesktopApi = {
+const api: TinyPalsDesktopApi = {
   getSettings: () => invoke<AppSettings>("settings:get"),
   updateSettings: (patch) => invoke<AppSettings>("settings:update", patch),
   onSettingsChanged: (listener) => {
@@ -20,7 +20,7 @@ const api: PinguDesktopApi = {
     };
   },
   openSettingsWindow: () => invoke<void>("settings:open-window"),
-  showPingu: () => invoke<void>("window:show-pingu"),
+  showTinyPals: () => invoke<void>("window:show-tinypals"),
   moveWindowToBottomRight: () => invoke<AppSettings>("window:move-to-bottom-right"),
   moveWindowBy: (delta) => invoke<AppSettings>("window:move-by", delta),
   resizeWindowTo: (size) => invoke<AppSettings>("window:resize-to", size),
@@ -30,4 +30,4 @@ const api: PinguDesktopApi = {
   getAppInfo: () => invoke<AppInfo>("app:info")
 };
 
-contextBridge.exposeInMainWorld("pinguDesktop", api);
+contextBridge.exposeInMainWorld("tinyPalsDesktop", api);

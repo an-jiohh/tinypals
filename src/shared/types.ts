@@ -25,12 +25,12 @@ export type AppInfo = {
   platform: NodeJS.Platform;
 };
 
-export type PinguDesktopApi = {
+export type TinyPalsDesktopApi = {
   getSettings(): Promise<AppSettings>;
   updateSettings(patch: Partial<AppSettings>): Promise<AppSettings>;
   onSettingsChanged(listener: (settings: AppSettings) => void): () => void;
   openSettingsWindow(): Promise<void>;
-  showPingu(): Promise<void>;
+  showTinyPals(): Promise<void>;
   moveWindowToBottomRight(): Promise<AppSettings>;
   moveWindowBy(delta: { x: number; y: number }): Promise<AppSettings>;
   resizeWindowTo(size: WindowSize): Promise<AppSettings>;

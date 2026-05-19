@@ -145,7 +145,7 @@ function PetApp() {
   useEffect(() => {
     let mounted = true;
 
-    void window.pinguDesktop
+    void window.tinyPalsDesktop
       .getSettings()
       .then((loadedSettings) => {
         if (mounted) {
@@ -156,7 +156,7 @@ function PetApp() {
       })
       .catch(() => {});
 
-    const unsubscribe = window.pinguDesktop.onSettingsChanged((nextSettings) => {
+    const unsubscribe = window.tinyPalsDesktop.onSettingsChanged((nextSettings) => {
       setSelectedAssetPack(getPetAssetPack(nextSettings.selectedAssetPack).id);
       dispatchPet(createPetEvent("settings_changed"));
     });
@@ -236,7 +236,7 @@ function PetApp() {
       dragging: true,
       direction: directionChange ?? drag.direction
     };
-    await window.pinguDesktop.moveWindowBy({ x: deltaX, y: deltaY });
+    await window.tinyPalsDesktop.moveWindowBy({ x: deltaX, y: deltaY });
   }
 
   function finishPointerInteraction(
@@ -285,7 +285,7 @@ function PetApp() {
 
     event.preventDefault();
     event.stopPropagation();
-    await window.pinguDesktop.resizeWindowTo(
+    await window.tinyPalsDesktop.resizeWindowTo(
       getResizeBoundsFromPointer(resize, event.screenX, event.screenY)
     );
   }
@@ -311,7 +311,7 @@ function PetApp() {
       <button
         className={`pet-button pet-${petState.mood}`}
         type="button"
-        aria-label="Greet Pingu"
+        aria-label="Greet TinyPals"
         onClick={handlePetClick}
         onPointerDown={handlePointerDown}
         onPointerMove={(event) => void handlePointerMove(event)}
@@ -343,7 +343,7 @@ function SettingsApp() {
   useEffect(() => {
     let mounted = true;
 
-    void window.pinguDesktop
+    void window.tinyPalsDesktop
       .getSettings()
       .then((loadedSettings) => {
         if (mounted) {
@@ -367,14 +367,14 @@ function SettingsApp() {
 
   async function updateAlwaysOnTop(enabled: boolean): Promise<void> {
     try {
-      const nextSettings = await window.pinguDesktop.setAlwaysOnTop(enabled);
+      const nextSettings = await window.tinyPalsDesktop.setAlwaysOnTop(enabled);
       setSettings(nextSettings);
     } catch {}
   }
 
   async function updateLaunchAtLogin(enabled: boolean): Promise<void> {
     try {
-      const nextSettings = await window.pinguDesktop.updateSettings({
+      const nextSettings = await window.tinyPalsDesktop.updateSettings({
         launchAtLogin: enabled
       });
       setSettings(nextSettings);
@@ -383,7 +383,7 @@ function SettingsApp() {
 
   async function updateSelectedAssetPack(selectedAssetPack: string): Promise<void> {
     try {
-      const nextSettings = await window.pinguDesktop.updateSettings({
+      const nextSettings = await window.tinyPalsDesktop.updateSettings({
         selectedAssetPack
       });
       setSettings(nextSettings);
@@ -392,20 +392,20 @@ function SettingsApp() {
 
   async function moveToBottomRight(): Promise<void> {
     try {
-      const nextSettings = await window.pinguDesktop.moveWindowToBottomRight();
+      const nextSettings = await window.tinyPalsDesktop.moveWindowToBottomRight();
       setSettings(nextSettings);
     } catch {}
   }
 
-  async function showPingu(): Promise<void> {
+  async function showTinyPals(): Promise<void> {
     try {
-      await window.pinguDesktop.showPingu();
+      await window.tinyPalsDesktop.showTinyPals();
     } catch {}
   }
 
   return (
     <main className="settings-shell">
-      <section className="settings-panel" aria-label="Pingu settings">
+      <section className="settings-panel" aria-label="TinyPals settings">
         <header className="settings-header">
           <h1>Preferences</h1>
           <button
@@ -447,7 +447,7 @@ function SettingsApp() {
               <label className="settings-row">
                 <span>
                   <strong>Start at Login</strong>
-                  <small>Open Pingu when macOS starts</small>
+                  <small>Open TinyPals when macOS starts</small>
                 </span>
                 <span className="switch-control">
                   <input
@@ -478,7 +478,7 @@ function SettingsApp() {
               >
                 <span>
                   <strong>Move to Bottom Right</strong>
-                  <small>Place Pingu back in the desktop corner</small>
+                  <small>Place TinyPals back in the desktop corner</small>
                 </span>
                 <span className="row-action">Move</span>
               </button>
@@ -486,10 +486,10 @@ function SettingsApp() {
               <button
                 className="settings-row action-row"
                 type="button"
-                onClick={() => void showPingu()}
+                onClick={() => void showTinyPals()}
               >
                 <span>
-                  <strong>Show Pingu</strong>
+                  <strong>Show TinyPals</strong>
                   <small>Bring the pet window forward</small>
                 </span>
                 <span className="row-action">Show</span>
@@ -533,11 +533,11 @@ function SettingsApp() {
               <button
                 className="settings-row action-row danger-row"
                 type="button"
-                onClick={() => void window.pinguDesktop.quit()}
+                onClick={() => void window.tinyPalsDesktop.quit()}
               >
                 <span>
                   <strong>Quit</strong>
-                  <small>Close Pingu</small>
+                  <small>Close TinyPals</small>
                 </span>
                 <span className="row-action">Quit</span>
               </button>

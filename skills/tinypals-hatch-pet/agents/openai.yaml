@@ -1,0 +1,4 @@
+interface:
+  display_name: "TinyPals Hatch Pet"
+  short_description: "Create TinyPals app pet asset packs"
+  default_prompt: "Use $tinypals-hatch-pet to create or import a hatch-pet character and register it in the TinyPals desktop app."

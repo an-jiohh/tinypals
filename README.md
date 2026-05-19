@@ -1,6 +1,6 @@
-# Pingu Desktop Pet
+# TinyPals Desktop Pet
 
-Pingu Desktop Pet은 데스크탑 위에 작게 떠 있는 미니멀한 가상 펫 앱입니다.
+TinyPals Desktop Pet은 데스크탑 위에 작게 떠 있는 미니멀한 가상 펫 앱입니다.
 현재 v1은 공부 타이머가 아니라, 추후 타이머와 일정 관리 기능을 붙일 수 있는
 플로팅 펫 기반을 먼저 구현한 상태입니다.
 
@@ -27,21 +27,44 @@ npm run typecheck
 npm run build
 ```
 
-격리된 설정 파일로 수동 검증하려면 `PINGU_USER_DATA_DIR`를 지정합니다.
+격리된 설정 파일로 수동 검증하려면 `TINYPALS_USER_DATA_DIR`를 지정합니다.
 
 ```bash
-PINGU_USER_DATA_DIR=/private/tmp/pingu-desktop-pet-user-data npm run dev
+TINYPALS_USER_DATA_DIR=/private/tmp/tinypals-desktop-pet-user-data npm run dev
 ```
+
+## Sentry 오류 수집
+
+배포 후 main process와 renderer 오류를 Sentry로 보낼 수 있습니다.
+`.env.example`을 기준으로 로컬 `.env` 또는 CI secret을 설정합니다.
+
+```bash
+VITE_SENTRY_DSN=https://public-key@o0.ingest.sentry.io/project-id
+SENTRY_DSN=https://public-key@o0.ingest.sentry.io/project-id
+VITE_SENTRY_ENVIRONMENT=production
+SENTRY_ENVIRONMENT=production
+SENTRY_ORG=your-org-slug
+SENTRY_PROJECT=your-project-slug
+SENTRY_AUTH_TOKEN=your-source-map-upload-token
+```
+
+- `VITE_SENTRY_DSN`은 renderer 오류 수집을 켜는 값입니다.
+- `SENTRY_DSN`은 Electron main process 오류 수집에 사용합니다.
+- `SENTRY_AUTH_TOKEN`은 source map 업로드에만 필요하며 git에 커밋하면 안 됩니다.
+- `SENTRY_ORG`, `SENTRY_PROJECT`, `SENTRY_AUTH_TOKEN`이 모두 있을 때만 배포 빌드에서
+  source map을 만들고 Sentry에 업로드합니다.
+- 임시로 비활성화하려면 `SENTRY_DISABLED=true`, `VITE_SENTRY_DISABLED=true`를 설정합니다.
 
 ## 현재 구현된 기능
 
-- 작은 placeholder Pingu 스타일 펫을 투명 frameless 창으로 표시
+- 작은 custom asset pack 기반 펫을 투명 frameless 창으로 표시
 - always-on-top 플로팅 창
 - 펫 드래그로 위치 이동
-- 펫 클릭 시 미니 설정 패널 열기
-- `Always on top`, `Start at login`, `Reset position`, `Quit` 설정 UI
+- 펫 클릭 시 짧은 캐릭터 반응
+- 트레이/메뉴바에서 설정 창 열기
+- `Always on Top`, `Start at Login`, `Pet Character`, `Move to Bottom Right`, `Show TinyPals`, `Quit` 설정 UI
 - 로컬 `settings.json` 저장
-- 상태별 SVG asset pack 구조
+- 상태별 PNG row spritesheet asset pack 구조
 - 추후 타이머/일정 기능 연결을 위한 펫 이벤트 타입 예약
 
 아직 구현하지 않은 기능:
@@ -50,15 +73,15 @@ PINGU_USER_DATA_DIR=/private/tmp/pingu-desktop-pet-user-data npm run dev
 - 일정 관리
 - 통계/리포트
 - 클라우드 동기화
-- 공식 Pingu 에셋과 사운드
+- 공식 또는 타사 IP 에셋과 사운드
 
 ## 문서
 
 - [아키텍처와 기술 스택](docs/architecture.md)
 - [구현 지도와 현재 상황](docs/implementation-map.md)
-- [Pingu 캐릭터 리서치](docs/research/pingu-character-research-2026-05-15.md)
-- [제품 설계 문서](docs/superpowers/specs/2026-05-16-pingu-desktop-pet-design.md)
-- [구현 계획 기록](docs/superpowers/plans/2026-05-16-pingu-desktop-pet.md)
+- [TinyPals IP 안전 원칙](docs/research/tinypals-ip-safety-2026-05-20.md)
+- [제품 설계 문서](docs/superpowers/specs/2026-05-16-tinypals-desktop-pet-design.md)
+- [구현 계획 기록](docs/superpowers/plans/2026-05-16-tinypals-desktop-pet.md)
 
 ## 개발 메모
 
@@ -73,6 +96,6 @@ node node_modules/electron/install.js
 
 ## IP 주의
 
-이 프로젝트는 공식 Pingu IP 라이선스 확보를 전제로 설계되었습니다.
-라이선스가 확정되기 전에는 공식 이름, 외형, 사운드, 세계관을 직접 제품에 사용하지 않고,
-placeholder SVG와 교체 가능한 asset pack 구조로만 개발합니다.
+TinyPals는 이 프로젝트의 새 제품명입니다. 공개 배포 전에는 기존 캐릭터 IP를 연상시키는
+이름, 외형, 사운드, 세계관을 직접 사용하지 않습니다. 캐릭터는 custom asset pack과
+교체 가능한 hatch-pet 구조로 관리합니다.

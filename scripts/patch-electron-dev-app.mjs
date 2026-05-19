@@ -7,7 +7,7 @@ const packageJson = JSON.parse(
   readFileSync(new URL("../package.json", import.meta.url), "utf8")
 );
 const appName = packageJson.build?.productName ?? packageJson.productName ?? packageJson.name;
-const appId = packageJson.build?.appId ?? "com.pingu.desktoppet";
+const appId = packageJson.build?.appId ?? "com.tinypals.desktoppet";
 
 if (process.platform !== "darwin") {
   process.exit(0);
@@ -17,7 +17,7 @@ const contentsDir = dirname(dirname(electronPath));
 const appBundleDir = dirname(contentsDir);
 const infoPlistPath = join(contentsDir, "Info.plist");
 const iconSourcePath = new URL("../build/icon.icns", import.meta.url);
-const iconTargetFileName = "pingu-dev.icns";
+const iconTargetFileName = "tinypals-dev.icns";
 const iconTargetPath = join(contentsDir, "Resources", iconTargetFileName);
 
 if (!existsSync(infoPlistPath)) {

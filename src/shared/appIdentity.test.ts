@@ -3,8 +3,8 @@ import { APP_DISPLAY_NAME } from "./appIdentity";
 import packageJson from "../../package.json";
 
 describe("app identity", () => {
-  it("uses Pingu as the visible app name", () => {
-    expect(APP_DISPLAY_NAME).toBe("Pingu");
+  it("uses TinyPals as the visible app name", () => {
+    expect(APP_DISPLAY_NAME).toBe("TinyPals");
   });
 
   it("keeps package metadata aligned with the visible app name", () => {

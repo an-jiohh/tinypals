@@ -27,7 +27,7 @@ function createTrayIcon(): Electron.NativeImage {
 
 export type TrayActions = {
   onOpenSettings: () => void;
-  onShowPingu: () => void;
+  onShowTinyPals: () => void;
 };
 
 function createCommandMenuItems(
@@ -39,7 +39,7 @@ function createCommandMenuItems(
       accelerator: "CommandOrControl+,",
       click: actions.onOpenSettings
     },
-    { label: "Show Pingu", click: actions.onShowPingu },
+    { label: "Show TinyPals", click: actions.onShowTinyPals },
     { type: "separator" },
     { label: "Quit", accelerator: "CommandOrControl+Q", click: () => app.quit() }
   ];

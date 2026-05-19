@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import pinguManifestData from "../renderer/assets/pingu/pet.json";
+import tinypalsManifestData from "../renderer/assets/tinypals/pet.json";
 import { getAssetForMood, PET_ASSET_STATES, validateAssetManifest } from "./assets";
 import type { PetAssetManifest } from "./petTypes";
 
@@ -14,20 +14,20 @@ const completeManifest: PetAssetManifest = {
     height: 104
   },
   states: {
-    idle: { file: "/assets/pingu/pingu_idle.png", frameCount: 6, fps: 6, loop: true },
-    "running-right": { file: "/assets/pingu/pingu_running_right.png", frameCount: 8, fps: 10, loop: true },
-    "running-left": { file: "/assets/pingu/pingu_running_left.png", frameCount: 8, fps: 10, loop: true },
-    waving: { file: "/assets/pingu/pingu_waving.png", frameCount: 4, fps: 8, loop: false },
-    jumping: { file: "/assets/pingu/pingu_jumping.png", frameCount: 5, fps: 10, loop: false },
-    failed: { file: "/assets/pingu/pingu_failed.png", frameCount: 8, fps: 8, loop: false },
-    waiting: { file: "/assets/pingu/pingu_waiting.png", frameCount: 6, fps: 6, loop: true },
-    running: { file: "/assets/pingu/pingu_running.png", frameCount: 6, fps: 8, loop: true },
-    review: { file: "/assets/pingu/pingu_review.png", frameCount: 6, fps: 6, loop: true }
+    idle: { file: "/assets/tinypals/tinypals_idle.png", frameCount: 6, fps: 6, loop: true },
+    "running-right": { file: "/assets/tinypals/tinypals_running_right.png", frameCount: 8, fps: 10, loop: true },
+    "running-left": { file: "/assets/tinypals/tinypals_running_left.png", frameCount: 8, fps: 10, loop: true },
+    waving: { file: "/assets/tinypals/tinypals_waving.png", frameCount: 4, fps: 8, loop: false },
+    jumping: { file: "/assets/tinypals/tinypals_jumping.png", frameCount: 5, fps: 10, loop: false },
+    failed: { file: "/assets/tinypals/tinypals_failed.png", frameCount: 8, fps: 8, loop: false },
+    waiting: { file: "/assets/tinypals/tinypals_waiting.png", frameCount: 6, fps: 6, loop: true },
+    running: { file: "/assets/tinypals/tinypals_running.png", frameCount: 6, fps: 8, loop: true },
+    review: { file: "/assets/tinypals/tinypals_review.png", frameCount: 6, fps: 6, loop: true }
   }
 };
 
 function readPngSize(file: string): { width: number; height: number } {
-  const data = readFileSync(new URL(`../renderer/assets/pingu/${file}`, import.meta.url));
+  const data = readFileSync(new URL(`../renderer/assets/tinypals/${file}`, import.meta.url));
 
   return {
     width: data.readUInt32BE(16),
@@ -96,9 +96,9 @@ describe("validateAssetManifest", () => {
   });
 });
 
-describe("pingu pet manifest", () => {
+describe("tinypals pet manifest", () => {
   it("records the hatch-pet atlas source used to derive row sprites", () => {
-    const manifest = pinguManifestData as unknown as {
+    const manifest = tinypalsManifestData as unknown as {
       source?: {
         type: string;
         atlasFile: string;
@@ -116,7 +116,7 @@ describe("pingu pet manifest", () => {
   });
 
   it("keeps renderer row sprites at the 2x atlas raster resolution", () => {
-    const manifest = pinguManifestData as PetAssetManifest;
+    const manifest = tinypalsManifestData as PetAssetManifest;
 
     for (const state of PET_ASSET_STATES) {
       const asset = manifest.states[state];
@@ -133,7 +133,7 @@ describe("getAssetForMood", () => {
   it("returns the requested mood asset when present", () => {
     expect(getAssetForMood(completeManifest, "jumping")).toEqual({
       state: "jumping",
-      file: "/assets/pingu/pingu_jumping.png",
+      file: "/assets/tinypals/tinypals_jumping.png",
       frameCount: 5,
       fps: 10,
       loop: false,
@@ -153,7 +153,7 @@ describe("getAssetForMood", () => {
 
     expect(getAssetForMood(manifest, "review")).toEqual({
       state: "idle",
-      file: "/assets/pingu/pingu_idle.png",
+      file: "/assets/tinypals/tinypals_idle.png",
       frameCount: 6,
       fps: 6,
       loop: true,

@@ -17,7 +17,7 @@ afterEach(async () => {
 
 describe("settingsStore", () => {
   it("loads defaults when no settings file exists", async () => {
-    tempDir = await mkdtemp(join(tmpdir(), "pingu-settings-"));
+    tempDir = await mkdtemp(join(tmpdir(), "tinypals-settings-"));
     const store = createSettingsStore(tempDir, () => display);
 
     await expect(store.load()).resolves.toMatchObject({
@@ -27,7 +27,7 @@ describe("settingsStore", () => {
   });
 
   it("persists merged settings", async () => {
-    tempDir = await mkdtemp(join(tmpdir(), "pingu-settings-"));
+    tempDir = await mkdtemp(join(tmpdir(), "tinypals-settings-"));
     const store = createSettingsStore(tempDir, () => display);
 
     await store.save({ alwaysOnTop: false });
@@ -38,7 +38,7 @@ describe("settingsStore", () => {
   });
 
   it("preserves existing persisted fields when saving a later patch", async () => {
-    tempDir = await mkdtemp(join(tmpdir(), "pingu-settings-"));
+    tempDir = await mkdtemp(join(tmpdir(), "tinypals-settings-"));
     const store = createSettingsStore(tempDir, () => display);
 
     await store.save({ selectedAssetPack: "custom-pack" });
@@ -51,7 +51,7 @@ describe("settingsStore", () => {
   });
 
   it("normalizes patched off-screen window bounds before saving", async () => {
-    tempDir = await mkdtemp(join(tmpdir(), "pingu-settings-"));
+    tempDir = await mkdtemp(join(tmpdir(), "tinypals-settings-"));
     const store = createSettingsStore(tempDir, () => display);
     const safeBounds = { x: 1112, y: 540, width: 144, height: 156 };
 
@@ -65,7 +65,7 @@ describe("settingsStore", () => {
   });
 
   it("persists dragged pet bounds with the resized pet size", async () => {
-    tempDir = await mkdtemp(join(tmpdir(), "pingu-settings-"));
+    tempDir = await mkdtemp(join(tmpdir(), "tinypals-settings-"));
     const store = createSettingsStore(tempDir, () => display);
 
     const saved = await store.saveWindowBounds({
@@ -79,7 +79,7 @@ describe("settingsStore", () => {
   });
 
   it("minimally clamps runtime window bounds before persisting", async () => {
-    tempDir = await mkdtemp(join(tmpdir(), "pingu-settings-"));
+    tempDir = await mkdtemp(join(tmpdir(), "tinypals-settings-"));
     const store = createSettingsStore(tempDir, () => display);
 
     const saved = await store.saveWindowBounds({
@@ -100,7 +100,7 @@ describe("settingsStore", () => {
   });
 
   it("recovers from invalid json", async () => {
-    tempDir = await mkdtemp(join(tmpdir(), "pingu-settings-"));
+    tempDir = await mkdtemp(join(tmpdir(), "tinypals-settings-"));
     await writeFile(join(tempDir, "settings.json"), "{bad json", "utf8");
     const store = createSettingsStore(tempDir, () => display);
 

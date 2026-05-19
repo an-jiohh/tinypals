@@ -1,15 +1,15 @@
 # 앱 이름과 아이콘 제작 기준
 
 이 문서는 macOS 메뉴바에 표시되는 앱 이름과 배포용 앱 아이콘을 바꾸는 기준입니다.
-현재 앱의 표시 이름은 `Pingu`이며, 공식 Pingu IP 에셋은 라이선스가 확정되기 전까지
-사용하지 않습니다.
+현재 앱의 표시 이름은 `TinyPals`이며, 타사 캐릭터 IP 에셋은 권리 확인 전까지 사용하지
+않습니다.
 
 ## 현재 연결된 파일
 
 | 용도 | 파일 | 기준 |
 |---|---|---|
-| 앱 표시 이름 | `src/shared/appIdentity.ts` | `APP_DISPLAY_NAME = "Pingu"` |
-| 패키징 앱 이름 | `package.json` | `build.productName = "Pingu"` |
+| 앱 표시 이름 | `src/shared/appIdentity.ts` | `APP_DISPLAY_NAME = "TinyPals"` |
+| 패키징 앱 이름 | `package.json` | `build.productName = "TinyPals"` |
 | 개발 모드 앱 metadata 패치 | `scripts/patch-electron-dev-app.mjs` | `npm run dev` 전에 Electron.app 이름/아이콘 패치 |
 | macOS 앱 아이콘 | `build/icon.icns` | electron-builder macOS 패키징용 |
 | Windows 앱 아이콘 | `build/icon.ico` | electron-builder Windows 패키징용 |
@@ -28,7 +28,7 @@
 - 배경: 투명 또는 단색 배경 가능
 - 여백: 아이콘 내용이 가장자리에 붙지 않게 12-18% 정도 확보
 - 명도: macOS dock, Finder, dmg 배경에서 모두 식별 가능해야 함
-- IP: 공식 Pingu 외형을 직접 쓰려면 라이선스 확인 후 진행
+- IP: 타사 캐릭터 외형을 직접 쓰려면 라이선스 확인 후 진행
 
 macOS용 `build/icon.icns`에는 보통 아래 크기들이 들어갑니다.
 
@@ -48,18 +48,18 @@ macOS용 `build/icon.icns`에는 보통 아래 크기들이 들어갑니다.
 일반적인 생성 흐름은 다음과 같습니다.
 
 ```bash
-mkdir -p build/Pingu.iconset
-sips -z 16 16 build/icon.png --out build/Pingu.iconset/icon_16x16.png
-sips -z 32 32 build/icon.png --out build/Pingu.iconset/icon_16x16@2x.png
-sips -z 32 32 build/icon.png --out build/Pingu.iconset/icon_32x32.png
-sips -z 64 64 build/icon.png --out build/Pingu.iconset/icon_32x32@2x.png
-sips -z 128 128 build/icon.png --out build/Pingu.iconset/icon_128x128.png
-sips -z 256 256 build/icon.png --out build/Pingu.iconset/icon_128x128@2x.png
-sips -z 256 256 build/icon.png --out build/Pingu.iconset/icon_256x256.png
-sips -z 512 512 build/icon.png --out build/Pingu.iconset/icon_256x256@2x.png
-sips -z 512 512 build/icon.png --out build/Pingu.iconset/icon_512x512.png
-sips -z 1024 1024 build/icon.png --out build/Pingu.iconset/icon_512x512@2x.png
-iconutil -c icns build/Pingu.iconset -o build/icon.icns
+mkdir -p build/TinyPals.iconset
+sips -z 16 16 build/icon.png --out build/TinyPals.iconset/icon_16x16.png
+sips -z 32 32 build/icon.png --out build/TinyPals.iconset/icon_16x16@2x.png
+sips -z 32 32 build/icon.png --out build/TinyPals.iconset/icon_32x32.png
+sips -z 64 64 build/icon.png --out build/TinyPals.iconset/icon_32x32@2x.png
+sips -z 128 128 build/icon.png --out build/TinyPals.iconset/icon_128x128.png
+sips -z 256 256 build/icon.png --out build/TinyPals.iconset/icon_128x128@2x.png
+sips -z 256 256 build/icon.png --out build/TinyPals.iconset/icon_256x256.png
+sips -z 512 512 build/icon.png --out build/TinyPals.iconset/icon_256x256@2x.png
+sips -z 512 512 build/icon.png --out build/TinyPals.iconset/icon_512x512.png
+sips -z 1024 1024 build/icon.png --out build/TinyPals.iconset/icon_512x512@2x.png
+iconutil -c icns build/TinyPals.iconset -o build/icon.icns
 ```
 
 Windows용 `build/icon.ico`는 최소 16, 32, 48, 256 px 크기를 포함하는 것이 좋습니다.
@@ -98,7 +98,7 @@ npm run dist:mac
 ```
 
 개발 실행에서 메뉴바 이름을 확인하려면 앱을 실행한 뒤 macOS 왼쪽 상단 앱 메뉴가
-`Pingu`로 표시되는지 확인합니다.
+`TinyPals`로 표시되는지 확인합니다.
 
 `npm run dev`는 실행 전에 `scripts/patch-electron-dev-app.mjs`를 자동으로 실행합니다.
 이 스크립트는 개발용 `node_modules/electron/dist/Electron.app`의 `CFBundleName`,

@@ -9,4 +9,4 @@
 - Use `Move to Bottom Right` semantics instead of top-left reset behavior.
 - `Move to Bottom Right` should reposition the pet without resizing it.
 - Keep settings window corners rounded; avoid overlapping native rounded borders with CSS borders.
-- Do not add official Pingu assets or sounds until licensing is confirmed.
+- Do not add third-party character IP assets or sounds unless the rights are confirmed.
