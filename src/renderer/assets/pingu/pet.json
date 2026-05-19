@@ -1,0 +1,75 @@
+{
+  "id": "dough-penguin",
+  "displayName": "Dough Penguin",
+  "description": "A small stop-motion clay penguin baker pet with a paper chef hat, mixing bowl, and flour props.",
+  "license": "custom",
+  "source": {
+    "type": "hatch-pet-atlas",
+    "atlasFile": "spritesheet-2x.png",
+    "cell": {
+      "width": 384,
+      "height": 416
+    },
+    "outputScale": 1
+  },
+  "frame": {
+    "width": 96,
+    "height": 104
+  },
+  "states": {
+    "idle": {
+      "file": "pingu_idle.png",
+      "frameCount": 6,
+      "fps": 6,
+      "loop": true
+    },
+    "running-right": {
+      "file": "pingu_running_right.png",
+      "frameCount": 8,
+      "fps": 10,
+      "loop": true
+    },
+    "running-left": {
+      "file": "pingu_running_left.png",
+      "frameCount": 8,
+      "fps": 10,
+      "loop": true
+    },
+    "waving": {
+      "file": "pingu_waving.png",
+      "frameCount": 4,
+      "fps": 8,
+      "loop": false
+    },
+    "jumping": {
+      "file": "pingu_jumping.png",
+      "frameCount": 5,
+      "fps": 10,
+      "loop": false
+    },
+    "failed": {
+      "file": "pingu_failed.png",
+      "frameCount": 8,
+      "fps": 8,
+      "loop": false
+    },
+    "waiting": {
+      "file": "pingu_waiting.png",
+      "frameCount": 6,
+      "fps": 6,
+      "loop": true
+    },
+    "running": {
+      "file": "pingu_running.png",
+      "frameCount": 6,
+      "fps": 8,
+      "loop": true
+    },
+    "review": {
+      "file": "pingu_review.png",
+      "frameCount": 6,
+      "fps": 6,
+      "loop": true
+    }
+  }
+}

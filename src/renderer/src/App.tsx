@@ -1,40 +1,58 @@
 import {
+  type CSSProperties,
   useEffect,
   useReducer,
   useRef,
   useState,
   type PointerEvent
 } from "react";
-import attentionAssetUrl from "../assets/pingu/attention.svg";
-import draggingAssetUrl from "../assets/pingu/dragging.svg";
-import greetAssetUrl from "../assets/pingu/greet.svg";
-import happyAssetUrl from "../assets/pingu/happy.svg";
-import idleAssetUrl from "../assets/pingu/idle.svg";
-import manifest from "../assets/pingu/manifest.json";
-import sleepyAssetUrl from "../assets/pingu/sleepy.svg";
-import { getAssetForMood } from "../../shared/assets";
+import petManifestData from "../assets/pingu/pet.json";
+import failedAssetUrl from "../assets/pingu/pingu_failed.png";
+import idleAssetUrl from "../assets/pingu/pingu_idle.png";
+import jumpingAssetUrl from "../assets/pingu/pingu_jumping.png";
+import reviewAssetUrl from "../assets/pingu/pingu_review.png";
+import runningAssetUrl from "../assets/pingu/pingu_running.png";
+import runningLeftAssetUrl from "../assets/pingu/pingu_running_left.png";
+import runningRightAssetUrl from "../assets/pingu/pingu_running_right.png";
+import waitingAssetUrl from "../assets/pingu/pingu_waiting.png";
+import wavingAssetUrl from "../assets/pingu/pingu_waving.png";
+import { getAssetForMood, PET_ASSET_STATES } from "../../shared/assets";
+import { getDragDirectionChange } from "../../shared/dragDirection";
 import {
   createInitialPetState,
   reducePetState
 } from "../../shared/petStateMachine";
-import type { PetAssetManifest, PetEvent } from "../../shared/petTypes";
+import {
+  PET_WINDOW_DEFAULT_HEIGHT,
+  PET_WINDOW_DEFAULT_WIDTH
+} from "../../shared/settings";
+import type {
+  PetAssetManifest,
+  PetAssetState,
+  PetDirection,
+  PetEvent,
+  PetStateAsset,
+  ResolvedPetAsset
+} from "../../shared/petTypes";
 import type { AppSettings } from "../../shared/types";
 
 const DRAG_START_DISTANCE = 3;
 const IDLE_TIMEOUT_MS = 120000;
 const IDLE_CHECK_INTERVAL_MS = 15000;
 
-const petManifest: PetAssetManifest = {
-  ...(manifest as Omit<PetAssetManifest, "states">),
-  states: {
-    idle: idleAssetUrl,
-    greet: greetAssetUrl,
-    dragging: draggingAssetUrl,
-    sleepy: sleepyAssetUrl,
-    happy: happyAssetUrl,
-    attention: attentionAssetUrl
-  }
-};
+const petAssetFiles = {
+  idle: idleAssetUrl,
+  "running-right": runningRightAssetUrl,
+  "running-left": runningLeftAssetUrl,
+  waving: wavingAssetUrl,
+  jumping: jumpingAssetUrl,
+  failed: failedAssetUrl,
+  waiting: waitingAssetUrl,
+  running: runningAssetUrl,
+  review: reviewAssetUrl
+} satisfies Record<PetAssetState, string>;
+
+const petManifest = createPetManifest();
 
 type DragState = {
   pointerId: number;
@@ -42,10 +60,102 @@ type DragState = {
   screenY: number;
   moved: boolean;
   dragging: boolean;
+  direction?: PetDirection;
 };
 
-function createPetEvent(type: PetEvent["type"]): PetEvent {
+type ResizeState = {
+  pointerId: number;
+  screenX: number;
+  screenY: number;
+  width: number;
+  height: number;
+};
+
+type FrameSize = {
+  width: number;
+  height: number;
+};
+
+function createPetEvent(type: Exclude<PetEvent["type"], "user_drag_started">): PetEvent {
   return { type, now: Date.now() } as PetEvent;
+}
+
+function createPetManifest(): PetAssetManifest {
+  const source = petManifestData as PetAssetManifest;
+  const states = Object.fromEntries(
+    PET_ASSET_STATES.map((state) => [
+      state,
+      {
+        ...source.states[state],
+        file: petAssetFiles[state]
+      }
+    ])
+  ) as Record<PetAssetState, PetStateAsset>;
+
+  return {
+    ...source,
+    states
+  };
+}
+
+function getSpriteStyle(asset: ResolvedPetAsset, frameSize: FrameSize): CSSProperties {
+  return {
+    "--sprite-image": `url("${asset.file}")`,
+    "--sprite-frame-width": `${frameSize.width}px`,
+    "--sprite-frame-height": `${frameSize.height}px`,
+    "--sprite-strip-width": `${frameSize.width * asset.frameCount}px`,
+    "--sprite-frame-offset": `${frameSize.width * (asset.frameCount - 1)}px`,
+    "--sprite-frame-steps": Math.max(asset.frameCount - 1, 1),
+    "--sprite-duration": `${(asset.frameCount / asset.fps) * 1000}ms`,
+    "--sprite-iteration-count": asset.loop ? "infinite" : "1"
+  } as CSSProperties;
+}
+
+function getCurrentFrameSize(): FrameSize {
+  if (typeof window === "undefined") {
+    return {
+      width: PET_WINDOW_DEFAULT_WIDTH,
+      height: PET_WINDOW_DEFAULT_HEIGHT
+    };
+  }
+
+  const aspectRatio = PET_WINDOW_DEFAULT_WIDTH / PET_WINDOW_DEFAULT_HEIGHT;
+  const availableWidth = Math.max(1, window.innerWidth);
+  const availableHeight = Math.max(1, window.innerHeight);
+  const width = Math.min(availableWidth, availableHeight * aspectRatio);
+
+  return {
+    width,
+    height: width / aspectRatio
+  };
+}
+
+function getResizeBoundsFromPointer(state: ResizeState, screenX: number, screenY: number): FrameSize {
+  const widthScale =
+    (state.width + screenX - state.screenX) / PET_WINDOW_DEFAULT_WIDTH;
+  const heightScale =
+    (state.height + screenY - state.screenY) / PET_WINDOW_DEFAULT_HEIGHT;
+  const scale = Math.max(widthScale, heightScale);
+
+  return {
+    width: Math.round(PET_WINDOW_DEFAULT_WIDTH * scale),
+    height: Math.round(PET_WINDOW_DEFAULT_HEIGHT * scale)
+  };
+}
+
+function useWindowFrameSize(): FrameSize {
+  const [frameSize, setFrameSize] = useState<FrameSize>(() => getCurrentFrameSize());
+
+  useEffect(() => {
+    function updateFrameSize(): void {
+      setFrameSize(getCurrentFrameSize());
+    }
+
+    window.addEventListener("resize", updateFrameSize);
+    return () => window.removeEventListener("resize", updateFrameSize);
+  }, []);
+
+  return frameSize;
 }
 
 export function App() {
@@ -58,8 +168,11 @@ function PetApp() {
     createInitialPetState(Date.now())
   );
   const dragRef = useRef<DragState | undefined>(undefined);
+  const resizeRef = useRef<ResizeState | undefined>(undefined);
   const suppressNextClickRef = useRef(false);
-  const assetPath = getAssetForMood(petManifest, petState.mood);
+  const frameSize = useWindowFrameSize();
+  const asset = getAssetForMood(petManifest, petState.mood);
+  const spriteStyle = getSpriteStyle(asset, frameSize);
 
   useEffect(() => {
     dispatchPet(createPetEvent("app_started"));
@@ -69,7 +182,7 @@ function PetApp() {
     const timer = window.setInterval(() => {
       if (
         Date.now() - petState.lastInteractionAt > IDLE_TIMEOUT_MS &&
-        petState.mood !== "sleepy"
+        petState.mood !== "waiting"
       ) {
         dispatchPet(createPetEvent("idle_timeout"));
       }
@@ -116,8 +229,14 @@ function PetApp() {
       return;
     }
 
-    if (!drag.dragging) {
-      dispatchPet(createPetEvent("user_drag_started"));
+    const directionChange = getDragDirectionChange(deltaX, drag.direction);
+
+    if (directionChange) {
+      dispatchPet({
+        type: "user_drag_started",
+        direction: directionChange,
+        now: Date.now()
+      });
     }
 
     dragRef.current = {
@@ -125,7 +244,8 @@ function PetApp() {
       screenX: event.screenX,
       screenY: event.screenY,
       moved: true,
-      dragging: true
+      dragging: true,
+      direction: directionChange ?? drag.direction
     };
     await window.pinguDesktop.moveWindowBy({ x: deltaX, y: deltaY });
   }
@@ -153,6 +273,50 @@ function PetApp() {
     dragRef.current = undefined;
   }
 
+  function handleResizePointerDown(event: PointerEvent<HTMLSpanElement>): void {
+    resizeRef.current = {
+      pointerId: event.pointerId,
+      screenX: event.screenX,
+      screenY: event.screenY,
+      width: window.innerWidth,
+      height: window.innerHeight
+    };
+    event.preventDefault();
+    event.stopPropagation();
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  async function handleResizePointerMove(
+    event: PointerEvent<HTMLSpanElement>
+  ): Promise<void> {
+    const resize = resizeRef.current;
+    if (!resize || resize.pointerId !== event.pointerId) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    await window.pinguDesktop.resizeWindowTo(
+      getResizeBoundsFromPointer(resize, event.screenX, event.screenY)
+    );
+  }
+
+  function finishResizeInteraction(event: PointerEvent<HTMLSpanElement>): void {
+    const resize = resizeRef.current;
+    if (!resize || resize.pointerId !== event.pointerId) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+
+    resizeRef.current = undefined;
+  }
+
   return (
     <main className="app-shell">
       <button
@@ -165,13 +329,21 @@ function PetApp() {
         onPointerUp={finishPointerInteraction}
         onPointerCancel={finishPointerInteraction}
       >
-        <img
-          key={`${petState.mood}-${petState.animationNonce}`}
-          src={assetPath}
-          alt=""
-          draggable={false}
+        <span
+          key={`${asset.state}-${petState.animationNonce}`}
+          className="pet-sprite"
+          style={spriteStyle}
+          aria-hidden="true"
         />
       </button>
+      <span
+        className="resize-handle"
+        role="presentation"
+        onPointerDown={handleResizePointerDown}
+        onPointerMove={(event) => void handleResizePointerMove(event)}
+        onPointerUp={finishResizeInteraction}
+        onPointerCancel={finishResizeInteraction}
+      />
     </main>
   );
 }

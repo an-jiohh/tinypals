@@ -7,6 +7,11 @@ export type WindowBounds = {
 
 export type DisplayBounds = WindowBounds;
 
+export type WindowSize = {
+  width: number;
+  height: number;
+};
+
 export type AppSettings = {
   windowBounds: WindowBounds;
   alwaysOnTop: boolean;
@@ -27,6 +32,7 @@ export type PinguDesktopApi = {
   showPingu(): Promise<void>;
   moveWindowToBottomRight(): Promise<AppSettings>;
   moveWindowBy(delta: { x: number; y: number }): Promise<AppSettings>;
+  resizeWindowTo(size: WindowSize): Promise<AppSettings>;
   setAlwaysOnTop(enabled: boolean): Promise<AppSettings>;
   quit(): Promise<void>;
   getAppInfo(): Promise<AppInfo>;

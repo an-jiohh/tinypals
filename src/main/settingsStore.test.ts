@@ -21,7 +21,7 @@ describe("settingsStore", () => {
     const store = createSettingsStore(tempDir, () => display);
 
     await expect(store.load()).resolves.toMatchObject({
-      windowBounds: { x: 1160, y: 600, width: 96, height: 96 },
+      windowBounds: { x: 1160, y: 592, width: 96, height: 104 },
       alwaysOnTop: true
     });
   });
@@ -53,7 +53,7 @@ describe("settingsStore", () => {
   it("normalizes patched off-screen window bounds before saving", async () => {
     tempDir = await mkdtemp(join(tmpdir(), "pingu-settings-"));
     const store = createSettingsStore(tempDir, () => display);
-    const safeBounds = { x: 1160, y: 600, width: 96, height: 96 };
+    const safeBounds = { x: 1160, y: 592, width: 96, height: 104 };
 
     const saved = await store.save({
       windowBounds: { x: 5000, y: 5000, width: 20, height: 500 }
@@ -64,7 +64,7 @@ describe("settingsStore", () => {
     expect(raw.windowBounds).toEqual(safeBounds);
   });
 
-  it("persists dragged pet bounds with the fixed pet size", async () => {
+  it("persists dragged pet bounds with the resized pet size", async () => {
     tempDir = await mkdtemp(join(tmpdir(), "pingu-settings-"));
     const store = createSettingsStore(tempDir, () => display);
 
@@ -75,7 +75,7 @@ describe("settingsStore", () => {
       height: 220
     });
 
-    expect(saved.windowBounds).toEqual({ x: 40, y: 60, width: 96, height: 96 });
+    expect(saved.windowBounds).toEqual({ x: 40, y: 60, width: 220, height: 238 });
   });
 
   it("minimally clamps runtime window bounds before persisting", async () => {
@@ -86,17 +86,17 @@ describe("settingsStore", () => {
       x: 1240,
       y: 700,
       width: 96,
-      height: 96
+      height: 104
     });
     const raw = JSON.parse(await readFile(join(tempDir, "settings.json"), "utf8"));
 
     expect(saved.windowBounds).toEqual({
       x: 1184,
-      y: 624,
+      y: 616,
       width: 96,
-      height: 96
+      height: 104
     });
-    expect(raw.windowBounds).toEqual({ x: 1184, y: 624, width: 96, height: 96 });
+    expect(raw.windowBounds).toEqual({ x: 1184, y: 616, width: 96, height: 104 });
   });
 
   it("recovers from invalid json", async () => {
@@ -105,7 +105,7 @@ describe("settingsStore", () => {
     const store = createSettingsStore(tempDir, () => display);
 
     await expect(store.load()).resolves.toMatchObject({
-      selectedAssetPack: "temporary-pingu"
+      selectedAssetPack: "dough-penguin"
     });
   });
 });

@@ -12,6 +12,7 @@ const api: PinguDesktopApi = {
   showPingu: () => invoke<void>("window:show-pingu"),
   moveWindowToBottomRight: () => invoke<AppSettings>("window:move-to-bottom-right"),
   moveWindowBy: (delta) => invoke<AppSettings>("window:move-by", delta),
+  resizeWindowTo: (size) => invoke<AppSettings>("window:resize-to", size),
   setAlwaysOnTop: (enabled) =>
     invoke<AppSettings>("window:set-always-on-top", enabled),
   quit: () => invoke<void>("app:quit"),

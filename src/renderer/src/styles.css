@@ -42,9 +42,11 @@ input {
 }
 
 .pet-button {
-  width: min(100vw, 96px);
-  height: min(100vh, 96px);
+  display: grid;
+  width: 100vw;
+  height: 100vh;
   padding: 0;
+  place-items: center;
   border: 0;
   background: transparent;
   cursor: pointer;
@@ -57,27 +59,48 @@ input {
   outline-offset: -4px;
 }
 
-.pet-button img {
+.pet-sprite {
   display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+  width: var(--sprite-frame-width);
+  height: var(--sprite-frame-height);
+  background-image: var(--sprite-image);
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  background-size: var(--sprite-strip-width) var(--sprite-frame-height);
   pointer-events: none;
-  animation: breathe 4s ease-in-out infinite;
+  animation: play-sprite var(--sprite-duration) steps(var(--sprite-frame-steps)) var(--sprite-iteration-count);
+  animation-fill-mode: forwards;
 }
 
-.pet-greet img,
-.pet-happy img,
-.pet-attention img {
-  animation: hop 700ms ease-out 1;
+.resize-handle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  width: 18px;
+  height: 18px;
+  cursor: nwse-resize;
+  -webkit-app-region: no-drag;
 }
 
-.pet-dragging img {
-  animation: tilt 520ms ease-in-out infinite alternate;
+.resize-handle::before,
+.resize-handle::after {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  display: block;
+  content: "";
+  background: rgba(24, 24, 24, 0.88);
 }
 
-.pet-sleepy img {
-  animation: sleepy 5s ease-in-out infinite;
+.resize-handle::before {
+  width: 11px;
+  height: 3px;
+}
+
+.resize-handle::after {
+  width: 3px;
+  height: 11px;
 }
 
 .settings-shell {
@@ -320,43 +343,8 @@ input {
   color: #37352f;
 }
 
-@keyframes breathe {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-2px);
-  }
-}
-
-@keyframes hop {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  45% {
-    transform: translateY(-7px);
-  }
-}
-
-@keyframes tilt {
-  from {
-    transform: rotate(-3deg);
-  }
+@keyframes play-sprite {
   to {
-    transform: rotate(3deg);
-  }
-}
-
-@keyframes sleepy {
-  0%,
-  100% {
-    opacity: 0.94;
-    transform: translateY(0);
-  }
-  50% {
-    opacity: 0.82;
-    transform: translateY(3px);
+    background-position-x: calc(-1 * var(--sprite-frame-offset));
   }
 }

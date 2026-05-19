@@ -37,11 +37,11 @@ electron-builder 설정을 따릅니다.
 flowchart LR
   Renderer["Renderer\nReact UI"] --> Preload["Preload\nwindow.pinguDesktop"]
   Preload --> Main["Electron Main\nIPC handlers"]
-  Main --> PetWindow["BrowserWindow\ntransparent 96x96 pet"]
+  Main --> PetWindow["BrowserWindow\ntransparent resizable pet"]
   Main --> SettingsWindow["BrowserWindow\nsettings window"]
   Main --> Store["settings.json\nElectron userData"]
   Main --> Tray["Tray menu"]
-  Renderer --> Assets["SVG asset pack"]
+  Renderer --> Assets["PNG spritesheet asset pack"]
   Renderer --> Shared["Shared state/types"]
   Main --> Shared
 ```
@@ -50,7 +50,7 @@ flowchart LR
 
 main process는 OS와 가까운 책임을 가집니다.
 
-- 투명 frameless 96x96 펫 `BrowserWindow` 생성
+- 투명 frameless 펫 `BrowserWindow` 생성
 - 별도 frameless 설정 `BrowserWindow` 생성
 - 설정 창 옵션은 `settingsWindowOptions.ts`에서 관리
 - always-on-top 설정
@@ -73,12 +73,12 @@ preload는 renderer에 제한된 API만 노출합니다. renderer는 Node API나
 renderer는 React로 구성되어 있으며, 다음 책임만 가집니다.
 
 - 현재 route에 따라 펫 창 또는 설정 창 UI 표시
-- 펫 창에서 현재 펫 상태에 맞는 SVG 표시
-- CSS 기반 저강도 애니메이션
+- 펫 창에서 현재 펫 상태에 맞는 PNG row spritesheet 표시
+- CSS `steps()` 기반 프레임 애니메이션
 - 펫 클릭 시 `user_clicked` 이벤트로 표정/상태 반응
 - pointer event 기반 창 드래그
 - 설정 창에서 토글과 command row 처리
-- 장시간 미입력 시 `sleepy` 상태 전환
+- 장시간 미입력 시 `waiting` 상태 전환
 
 ### Shared
 
@@ -118,10 +118,12 @@ type AppSettings = {
 };
 ```
 
-`PetEvent`와 `PetMood`는 펫 반응 모델의 중심입니다. v1에서 실제 사용하는 이벤트는
-`app_started`, `user_clicked`, `user_drag_started`, `user_drag_ended`,
-`idle_timeout`, `settings_changed`입니다. 타이머와 일정 기능을 위해
-`timer_started`, `timer_paused`, `timer_completed`, `schedule_due`가 예약되어 있습니다.
+`PetEvent`와 `PetMood`는 펫 반응 모델의 중심입니다. 상태는 hatch-pet 표준 9상태인
+`idle`, `running-right`, `running-left`, `waving`, `jumping`, `failed`, `waiting`,
+`running`, `review`를 사용합니다. v1에서 실제 사용하는 이벤트는 `app_started`,
+`user_clicked`, 방향 정보를 가진 `user_drag_started`, `user_drag_ended`,
+`idle_timeout`, `settings_changed`입니다. 타이머와 일정 기능을 위해 `timer_started`,
+`timer_paused`, `timer_completed`, `schedule_due`가 예약되어 있습니다.
 
 `PetAssetManifest`는 asset pack 교체를 위한 고정 인터페이스입니다.
 
@@ -129,8 +131,13 @@ type AppSettings = {
 type PetAssetManifest = {
   id: string;
   displayName: string;
+  description: string;
   license: "official-licensed" | "placeholder" | "custom";
-  states: Record<PetAssetState, string>;
+  frame: { width: number; height: number };
+  states: Record<
+    PetAssetState,
+    { file: string; frameCount: number; fps: number; loop: boolean }
+  >;
 };
 ```
 
@@ -155,14 +162,14 @@ sequenceDiagram
 
 설정 파일이 없거나 JSON 파싱에 실패하면 기본값으로 복구합니다. 기본 위치는 현재
 디스플레이의 오른쪽 아래 safe margin입니다. 저장된 창 위치가 현재 디스플레이 밖이면
-같은 오른쪽 아래 기본 위치로 되돌립니다. 펫 창 크기는 저장된 값과 무관하게 96x96으로
-고정합니다.
+같은 오른쪽 아래 기본 위치로 되돌립니다. 펫 창 기본 크기는 96x104이고, 사용자가
+우하단 resize handle을 드래그하면 96:104 비율을 유지한 크기를 저장합니다.
 
 ### 창 이동과 설정 창
 
 드래그 이동은 실제 위치를 저장합니다. 설정은 펫 창을 키워서 열지 않고 트레이/메뉴바에서
 별도 설정 창을 여는 방식입니다. `Move to Bottom Right`는 현재 디스플레이 기준으로 펫을
-96x96 크기, 24px margin의 오른쪽 아래에 배치하고 저장합니다.
+기본 96x104 크기, 24px margin의 오른쪽 아래에 배치하고 저장합니다.
 
 설정 창은 transparent `BrowserWindow`를 host로 사용하고, 실제 배경, 라운드 모서리,
 테두리는 renderer의 `.settings-panel`이 담당합니다. 라운드 모서리는 유지하되 macOS/Electron
@@ -185,8 +192,14 @@ flowchart TD
 
 ### Asset pack
 
-renderer는 manifest와 상태별 SVG를 import한 뒤 `PetMood`에 맞는 asset을 선택합니다.
-상태별 asset이 빠져 있으면 idle asset으로 fallback합니다.
+renderer는 `pet.json`과 상태별 PNG row spritesheet를 import한 뒤 `PetMood`에 맞는
+asset metadata를 선택합니다. 상태별 asset 파일이 빠져 있으면 idle asset으로 fallback합니다.
+
+Pingu asset pack은 hatch-pet의 2x 투명 atlas `spritesheet-2x.png`를 원본으로 둡니다.
+renderer용 상태별 PNG row spritesheet는 `npm run assets:pingu`로 atlas의 384x416 셀을
+검증한 뒤 원본 해상도를 유지한 row strip으로 파생합니다. CSS는 이를 96x104 논리 frame으로
+그려 Retina 환경과 창 확대에서 흐림을 줄입니다. QA contact sheet는 alpha가 사라진 검토용
+이미지이므로 asset source로 사용하지 않습니다.
 
 ## 개발 모드 주의사항
 

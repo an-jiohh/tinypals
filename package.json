@@ -8,6 +8,7 @@
   "scripts": {
     "predev": "node scripts/patch-electron-dev-app.mjs",
     "dev": "electron-vite dev",
+    "assets:pingu": "python3 scripts/build-pingu-hatch-assets.py",
     "build": "npm run typecheck && npm run test && electron-vite build",
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",

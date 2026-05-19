@@ -1,6 +1,13 @@
 import { BrowserWindow, screen } from "electron";
 import { join } from "node:path";
-import { PET_WINDOW_DEFAULT_SIZE } from "../shared/settings";
+import {
+  PET_WINDOW_DEFAULT_HEIGHT,
+  PET_WINDOW_DEFAULT_WIDTH,
+  PET_WINDOW_MAX_HEIGHT,
+  PET_WINDOW_MAX_WIDTH,
+  PET_WINDOW_MIN_HEIGHT,
+  PET_WINDOW_MIN_WIDTH
+} from "../shared/settings";
 import type { AppSettings, DisplayBounds, WindowBounds } from "../shared/types";
 
 export function getPrimaryDisplayBounds(): DisplayBounds {
@@ -12,15 +19,15 @@ export function createPetWindow(settings: AppSettings): BrowserWindow {
   const petWindow = new BrowserWindow({
     x: settings.windowBounds.x,
     y: settings.windowBounds.y,
-    width: PET_WINDOW_DEFAULT_SIZE,
-    height: PET_WINDOW_DEFAULT_SIZE,
-    minWidth: PET_WINDOW_DEFAULT_SIZE,
-    minHeight: PET_WINDOW_DEFAULT_SIZE,
-    maxWidth: PET_WINDOW_DEFAULT_SIZE,
-    maxHeight: PET_WINDOW_DEFAULT_SIZE,
+    width: settings.windowBounds.width,
+    height: settings.windowBounds.height,
+    minWidth: PET_WINDOW_MIN_WIDTH,
+    minHeight: PET_WINDOW_MIN_HEIGHT,
+    maxWidth: PET_WINDOW_MAX_WIDTH,
+    maxHeight: PET_WINDOW_MAX_HEIGHT,
     frame: false,
     transparent: true,
-    resizable: false,
+    resizable: true,
     movable: true,
     hasShadow: false,
     alwaysOnTop: settings.alwaysOnTop,
@@ -36,6 +43,7 @@ export function createPetWindow(settings: AppSettings): BrowserWindow {
   });
 
   petWindow.setAlwaysOnTop(settings.alwaysOnTop, "floating");
+  petWindow.setAspectRatio(PET_WINDOW_DEFAULT_WIDTH / PET_WINDOW_DEFAULT_HEIGHT);
   return petWindow;
 }
 

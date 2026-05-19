@@ -3,8 +3,13 @@ import {
   DEFAULT_SETTINGS,
   getDefaultWindowBounds,
   normalizeWindowBounds,
-  PET_WINDOW_DEFAULT_SIZE,
+  PET_WINDOW_DEFAULT_HEIGHT,
+  PET_WINDOW_DEFAULT_WIDTH,
   PET_WINDOW_MARGIN,
+  PET_WINDOW_MAX_HEIGHT,
+  PET_WINDOW_MAX_WIDTH,
+  PET_WINDOW_MIN_HEIGHT,
+  PET_WINDOW_MIN_WIDTH,
   normalizeSettings
 } from "./settings";
 import type { DisplayBounds } from "./types";
@@ -18,43 +23,48 @@ const display: DisplayBounds = {
 
 describe("settings", () => {
   it("exports the approved window sizing constants", () => {
-    expect(PET_WINDOW_DEFAULT_SIZE).toBe(96);
+    expect(PET_WINDOW_DEFAULT_WIDTH).toBe(96);
+    expect(PET_WINDOW_DEFAULT_HEIGHT).toBe(104);
+    expect(PET_WINDOW_MIN_WIDTH).toBe(96);
+    expect(PET_WINDOW_MIN_HEIGHT).toBe(104);
+    expect(PET_WINDOW_MAX_WIDTH).toBe(384);
+    expect(PET_WINDOW_MAX_HEIGHT).toBe(416);
     expect(PET_WINDOW_MARGIN).toBe(24);
   });
 
   it("defines the approved default settings", () => {
     expect(DEFAULT_SETTINGS).toEqual({
-      windowBounds: { x: 24, y: 24, width: 96, height: 96 },
+      windowBounds: { x: 24, y: 24, width: 96, height: 104 },
       alwaysOnTop: true,
       launchAtLogin: false,
-      selectedAssetPack: "temporary-pingu"
+      selectedAssetPack: "dough-penguin"
     });
   });
 
   it("places default window bounds at the display bottom right with a margin", () => {
     expect(getDefaultWindowBounds(display)).toEqual({
       x: 1420,
-      y: 980,
+      y: 972,
       width: 96,
-      height: 96
+      height: 104
     });
   });
 
   it("merges partial settings with defaults", () => {
     expect(normalizeSettings({ alwaysOnTop: false }, display)).toEqual({
-      windowBounds: { x: 1420, y: 980, width: 96, height: 96 },
+      windowBounds: { x: 1420, y: 972, width: 96, height: 104 },
       alwaysOnTop: false,
       launchAtLogin: false,
-      selectedAssetPack: "temporary-pingu"
+      selectedAssetPack: "dough-penguin"
     });
   });
 
   it("normalizes undefined settings using display-aware defaults", () => {
     expect(normalizeSettings(undefined, display)).toEqual({
-      windowBounds: { x: 1420, y: 980, width: 96, height: 96 },
+      windowBounds: { x: 1420, y: 972, width: 96, height: 104 },
       alwaysOnTop: true,
       launchAtLogin: false,
-      selectedAssetPack: "temporary-pingu"
+      selectedAssetPack: "dough-penguin"
     });
   });
 
@@ -66,12 +76,12 @@ describe("settings", () => {
             x: 10_000,
             y: -500,
             width: 96,
-            height: 96
+            height: 104
           }
         },
         display
       ).windowBounds
-    ).toEqual({ x: 1420, y: 980, width: 96, height: 96 });
+    ).toEqual({ x: 1420, y: 972, width: 96, height: 104 });
   });
 
   it("resets off-screen bounds to the full default bounds", () => {
@@ -85,10 +95,10 @@ describe("settings", () => {
         },
         display
       )
-    ).toEqual({ x: 1420, y: 980, width: 96, height: 96 });
+    ).toEqual({ x: 1420, y: 972, width: 96, height: 104 });
   });
 
-  it("ignores persisted size and keeps the pet window fixed", () => {
+  it("preserves persisted size while keeping the pet window aspect ratio", () => {
     expect(
       normalizeSettings(
         {
@@ -101,6 +111,36 @@ describe("settings", () => {
         },
         display
       ).windowBounds
-    ).toEqual({ x: 320, y: 360, width: 96, height: 96 });
+    ).toEqual({ x: 320, y: 360, width: 222, height: 240 });
+  });
+
+  it("clamps persisted size to the approved resize range", () => {
+    expect(
+      normalizeSettings(
+        {
+          windowBounds: {
+            x: 320,
+            y: 360,
+            width: 20,
+            height: 20
+          }
+        },
+        display
+      ).windowBounds
+    ).toEqual({ x: 320, y: 360, width: 96, height: 104 });
+
+    expect(
+      normalizeSettings(
+        {
+          windowBounds: {
+            x: 320,
+            y: 360,
+            width: 900,
+            height: 900
+          }
+        },
+        display
+      ).windowBounds
+    ).toEqual({ x: 320, y: 360, width: 384, height: 416 });
   });
 });

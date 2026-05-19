@@ -8,13 +8,13 @@ import type { DisplayBounds, WindowBounds } from "../shared/types";
 const display: DisplayBounds = { x: 0, y: 0, width: 500, height: 400 };
 
 describe("getRuntimeWindowBounds", () => {
-  it("clamps runtime position while keeping the pet at its fixed size", () => {
+  it("clamps runtime position while preserving a resized pet size", () => {
     expect(
       getRuntimeWindowBounds(
         { x: 480, y: 390, width: 180, height: 180 },
         display
       )
-    ).toEqual({ x: 404, y: 304, width: 96, height: 96 });
+    ).toEqual({ x: 320, y: 205, width: 180, height: 195 });
   });
 
   it("keeps runtime bounds inside very small displays", () => {
@@ -44,7 +44,7 @@ describe("createProgrammaticBoundsSuppressor", () => {
         x: 20,
         y: 30,
         width: 96,
-        height: 96
+        height: 104
       })
     ).toBe(false);
     expect(suppressor.shouldSuppress("moved", programmaticBounds)).toBe(false);

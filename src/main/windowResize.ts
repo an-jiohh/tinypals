@@ -1,4 +1,4 @@
-import { PET_WINDOW_DEFAULT_SIZE } from "../shared/settings";
+import { normalizeWindowSize } from "../shared/settings";
 import type { DisplayBounds, WindowBounds } from "../shared/types";
 
 export type ProgrammaticBoundsEvent = "moved" | "resized";
@@ -43,8 +43,11 @@ export function getRuntimeWindowBounds(
   bounds: WindowBounds,
   display: DisplayBounds
 ): WindowBounds {
-  const width = Math.min(PET_WINDOW_DEFAULT_SIZE, display.width);
-  const height = Math.min(PET_WINDOW_DEFAULT_SIZE, display.height);
+  const { width, height } = normalizeWindowSize(
+    bounds.width,
+    bounds.height,
+    display
+  );
 
   return {
     x: clampPosition(
