@@ -1,7 +1,7 @@
-import type { AppSettings, DisplayBounds, WindowBounds } from "./types";
+import type { AppSettings, DisplayBounds, WindowBounds, WindowSize } from "./types";
 
-export const PET_WINDOW_DEFAULT_WIDTH = 96;
-export const PET_WINDOW_DEFAULT_HEIGHT = 104;
+export const PET_WINDOW_DEFAULT_WIDTH = 144;
+export const PET_WINDOW_DEFAULT_HEIGHT = 156;
 export const PET_WINDOW_MIN_WIDTH = 96;
 export const PET_WINDOW_MIN_HEIGHT = 104;
 export const PET_WINDOW_MAX_WIDTH = 384;
@@ -16,11 +16,20 @@ export const DEFAULT_SETTINGS: AppSettings = {
 };
 
 export function getDefaultWindowBounds(display: DisplayBounds): WindowBounds {
+  return getBottomRightWindowBounds(display);
+}
+
+export function getBottomRightWindowBounds(
+  display: DisplayBounds,
+  size?: WindowSize
+): WindowBounds {
+  const normalizedSize = normalizeWindowSize(size?.width, size?.height, display);
+
   return {
-    x: display.x + display.width - PET_WINDOW_DEFAULT_WIDTH - PET_WINDOW_MARGIN,
-    y: display.y + display.height - PET_WINDOW_DEFAULT_HEIGHT - PET_WINDOW_MARGIN,
-    width: PET_WINDOW_DEFAULT_WIDTH,
-    height: PET_WINDOW_DEFAULT_HEIGHT
+    x: display.x + display.width - normalizedSize.width - PET_WINDOW_MARGIN,
+    y: display.y + display.height - normalizedSize.height - PET_WINDOW_MARGIN,
+    width: normalizedSize.width,
+    height: normalizedSize.height
   };
 }
 
@@ -71,13 +80,17 @@ export function normalizeWindowSize(
   const heightScale = isFinitePositiveNumber(height)
     ? height / PET_WINDOW_DEFAULT_HEIGHT
     : 1;
+  const minScale = Math.max(
+    PET_WINDOW_MIN_WIDTH / PET_WINDOW_DEFAULT_WIDTH,
+    PET_WINDOW_MIN_HEIGHT / PET_WINDOW_DEFAULT_HEIGHT
+  );
   const maxScale = Math.min(
     PET_WINDOW_MAX_WIDTH / PET_WINDOW_DEFAULT_WIDTH,
     PET_WINDOW_MAX_HEIGHT / PET_WINDOW_DEFAULT_HEIGHT,
     display.width / PET_WINDOW_DEFAULT_WIDTH,
     display.height / PET_WINDOW_DEFAULT_HEIGHT
   );
-  const scale = clamp(Math.max(widthScale, heightScale), 1, maxScale);
+  const scale = clamp(Math.max(widthScale, heightScale), minScale, maxScale);
 
   return {
     width: Math.round(PET_WINDOW_DEFAULT_WIDTH * scale),

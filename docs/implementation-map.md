@@ -15,13 +15,14 @@
 | 설정 저장 | `src/main/settingsStore.ts` | Electron `userData` 아래 `settings.json` 읽기/쓰기 |
 | 설정 기본값/정규화 | `src/shared/settings.ts` | 오른쪽 아래 기본 bounds, 화면 밖 위치 복구, 96:104 비율 resize bounds |
 | programmatic bounds event 방지 | `src/main/windowResize.ts` | 코드가 호출한 bounds 변경 이벤트를 저장 이벤트와 구분 |
-| preload API | `src/preload/preload.ts` | `window.pinguDesktop` 노출 |
+| preload API | `src/preload/preload.ts` | `window.pinguDesktop` 노출, settings change 구독 |
 | API 타입 | `src/shared/types.ts` | `PinguDesktopApi`, `AppSettings` |
 | 펫 상태 모델 | `src/shared/petTypes.ts`, `src/shared/petStateMachine.ts` | 상태, 이벤트, reducer |
 | renderer UI | `src/renderer/src/App.tsx` | 펫 클릭 반응, 드래그, 설정 창 route, command row 처리 |
+| 캐릭터 registry | `src/renderer/src/petAssetRegistry.ts` | 설정 선택지와 정적 asset pack import |
 | 스타일/애니메이션 | `src/renderer/src/styles.css` | 펫 애니메이션, Notion 스타일 설정 창, rounded border |
 | 설정 창 스타일 회귀 테스트 | `src/renderer/src/settingsStyles.test.ts` | 라운드 유지와 transparent shell 조건 확인 |
-| asset pack | `src/renderer/assets/pingu/*` | `pet.json`과 상태별 PNG row spritesheet |
+| asset pack | `src/renderer/assets/pingu/*`, `src/renderer/assets/pingu-test/*` | `pet.json`과 상태별 PNG row spritesheet |
 | asset 검증 | `src/shared/assets.ts` | 필수 상태 asset 누락 검증과 fallback |
 
 ## 현재 구현 완료
@@ -31,17 +32,17 @@
 - 임시 앱 아이콘 `build/icon.png`, `build/icon.icns`, `build/icon.ico`
 - 개발 모드 Electron.app 이름/아이콘 자동 패치
 - 투명 frameless floating pet window
-- 펫 창 기본 96x104, 우하단 handle 기반 비율 유지 resize
+- 펫 창 기본 144x156, 우하단 handle 기반 96:104 비율 유지 resize
 - always-on-top 기본값과 토글
 - 펫 드래그 위치 이동과 위치 저장
 - 펫 클릭 시 `user_clicked` 반응만 처리
 - 트레이/메뉴바에서 `Open Settings`, `Show Pingu`, `Quit` 제공
 - 별도 Notion 스타일 설정 창
-- `Always on Top`, `Start at Login`, `Move to Bottom Right`, `Show Pingu`, `Quit` UI
+- `Always on Top`, `Start at Login`, `Pet Character`, `Move to Bottom Right`, `Show Pingu`, `Quit` UI
 - 설정 창 라운드 모서리와 균일한 inset border
 - 로컬 `settings.json` 저장과 기본값 복구
 - 오른쪽 아래 기본 위치와 화면 밖 window bounds 정규화
-- Dough Penguin PNG row spritesheet asset pack
+- Dough Penguin PNG row spritesheet asset pack과 복사본 테스트 pack
 - `idle`, `running-right`, `running-left`, `waving`, `jumping`, `failed`, `waiting`, `running`, `review` 상태
 - 타이머/일정 기능 연결용 reserved event 타입
 - 단위 테스트와 build pipeline
@@ -81,12 +82,15 @@ v1에는 schedule 저장소가 없습니다. 일정 기능을 추가할 때는 m
 
 ### 에셋 교체
 
-`pet.json`의 상태 키와 frame metadata를 유지하면 교체 범위가 작습니다.
+`pet.json`의 상태 키와 frame metadata를 유지하면 교체 범위가 작습니다. 새 캐릭터를
+사용자 선택지에 노출하려면 asset 폴더를 추가한 뒤 `petAssetRegistry.ts`에 정적 import로
+등록합니다.
 
-- `src/renderer/assets/pingu/pet.json`의 `license`, `displayName`, `description`을 새 asset pack에 맞게 변경
-- hatch-pet 2x 투명 atlas를 `src/renderer/assets/pingu/spritesheet-2x.png`로 교체
+- 새 asset 폴더의 `pet.json` `id`, `license`, `displayName`, `description`을 asset pack에 맞게 변경
+- hatch-pet 2x 투명 atlas를 새 asset 폴더의 `spritesheet-2x.png`로 배치
 - `npm run assets:pingu`를 실행해 atlas 검증과 상태별 PNG row spritesheet 재생성을 함께 수행
 - frame 크기나 frame count가 바뀌면 `pet.json`과 asset 검증 테스트를 함께 갱신
+- `src/renderer/src/petAssetRegistry.test.ts`에 새 pack 노출과 manifest 검증을 반영
 - QA contact sheet는 배경/라벨/border가 RGB로 합성된 검토 이미지이므로 추출 원본으로 사용하지 않음
 - 공식 IP 사용 전 라이선스 확인 문서를 업데이트
 
@@ -108,7 +112,7 @@ v1에는 schedule 저장소가 없습니다. 일정 기능을 추가할 때는 m
 
 - 새 설정값이 필요하면 `src/shared/types.ts`의 `AppSettings`를 확장
 - 저장/정규화는 `src/shared/settings.ts`, `src/main/settingsStore.ts`에서 처리
-- 새 command row는 `SettingsApp`에 추가하고 필요한 IPC는 `src/main/main.ts`, `src/preload/preload.ts`에 연결
+- 새 command row나 select control은 `SettingsApp`에 추가하고 필요한 IPC는 `src/main/main.ts`, `src/preload/preload.ts`에 연결
 - 라운드 모서리 테두리 변경 시 `src/renderer/src/settingsStyles.test.ts`와 실제 Electron 창을 함께 확인
 
 ## 검증 기준
@@ -129,11 +133,12 @@ PINGU_USER_DATA_DIR=/private/tmp/pingu-desktop-pet-user-data npm run dev
 
 수동 확인 항목:
 
-- 앱 실행 시 기본 96x104 비율의 작은 펫이 보이고 우하단 handle로 크기가 조절되는가
+- 앱 실행 시 기본 144x156 비율의 작은 펫이 보이고 우하단 handle로 크기가 조절되는가
+- 설정 창 `Character`에서 두 asset pack이 보이고 선택 변경이 펫 창에 즉시 반영되는가
 - 클릭 시 설정 창이 열리지 않고 표정/상태만 바뀌는가
 - 드래그 후 재실행해 위치가 유지되는가
 - 트레이/메뉴바의 `Open Settings`로 별도 설정 창이 열리는가
-- `Move to Bottom Right` 후 재실행해 오른쪽 아래 위치가 유지되는가
+- `Move to Bottom Right` 후 크기는 유지되고 오른쪽 아래 위치가 저장되는가
 - `Quit`으로 앱이 종료되는가
 
 ## 기존 문서와의 관계

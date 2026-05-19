@@ -1,7 +1,10 @@
 import { app, BrowserWindow, Tray, ipcMain } from "electron";
 import { join } from "node:path";
 import { APP_DISPLAY_NAME } from "../shared/appIdentity";
-import { getDefaultWindowBounds } from "../shared/settings";
+import {
+  getBottomRightWindowBounds,
+  getDefaultWindowBounds
+} from "../shared/settings";
 import type {
   AppInfo,
   AppSettings,
@@ -230,8 +233,14 @@ async function showOrCreateSettingsWindow(): Promise<void> {
 }
 
 async function movePetWindowToBottomRight(): Promise<AppSettings> {
-  const defaultBounds = getDefaultWindowBounds(getPrimaryDisplayBounds());
-  const settings = await store.saveWindowBounds(defaultBounds);
+  const display = getPrimaryDisplayBounds();
+  const currentSettings = await store.load();
+  const currentBounds =
+    petWindow && !petWindow.isDestroyed()
+      ? getWindowBounds(petWindow)
+      : currentSettings.windowBounds;
+  const bottomRightBounds = getBottomRightWindowBounds(display, currentBounds);
+  const settings = await store.saveWindowBounds(bottomRightBounds);
   applyProgrammaticBounds(settings.windowBounds);
   return settings;
 }
@@ -257,6 +266,7 @@ async function resizePetWindowTo(size: WindowSize): Promise<AppSettings> {
 async function saveSettingsPatch(patch: Partial<AppSettings>): Promise<AppSettings> {
   const settings = await store.save(patch);
   petWindow?.setAlwaysOnTop(settings.alwaysOnTop, "floating");
+  petWindow?.webContents.send("settings:changed", settings);
   app.setLoginItemSettings({ openAtLogin: settings.launchAtLogin });
   return settings;
 }

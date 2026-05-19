@@ -29,6 +29,10 @@ input {
   font: inherit;
 }
 
+select {
+  font: inherit;
+}
+
 .app-shell {
   position: relative;
   display: grid;
@@ -174,7 +178,7 @@ input {
 .settings-content {
   display: grid;
   gap: 12px;
-  overflow: hidden;
+  overflow: auto;
   padding: 0 34px 30px;
 }
 
@@ -258,6 +262,24 @@ input {
   width: 34px;
   height: 20px;
   place-items: center;
+}
+
+.select-control {
+  flex: 0 0 auto;
+  max-width: 160px;
+  min-width: 132px;
+  height: 30px;
+  border: 1px solid rgba(55, 53, 47, 0.14);
+  border-radius: 6px;
+  background: #ffffff;
+  color: #37352f;
+  font-size: 12px;
+  letter-spacing: 0;
+  -webkit-app-region: no-drag;
+}
+
+.select-control:disabled {
+  color: rgba(55, 53, 47, 0.38);
 }
 
 .switch-control input {

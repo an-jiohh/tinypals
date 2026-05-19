@@ -21,7 +21,7 @@ describe("settingsStore", () => {
     const store = createSettingsStore(tempDir, () => display);
 
     await expect(store.load()).resolves.toMatchObject({
-      windowBounds: { x: 1160, y: 592, width: 96, height: 104 },
+      windowBounds: { x: 1112, y: 540, width: 144, height: 156 },
       alwaysOnTop: true
     });
   });
@@ -53,7 +53,7 @@ describe("settingsStore", () => {
   it("normalizes patched off-screen window bounds before saving", async () => {
     tempDir = await mkdtemp(join(tmpdir(), "pingu-settings-"));
     const store = createSettingsStore(tempDir, () => display);
-    const safeBounds = { x: 1160, y: 592, width: 96, height: 104 };
+    const safeBounds = { x: 1112, y: 540, width: 144, height: 156 };
 
     const saved = await store.save({
       windowBounds: { x: 5000, y: 5000, width: 20, height: 500 }

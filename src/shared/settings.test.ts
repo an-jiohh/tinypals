@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   DEFAULT_SETTINGS,
+  getBottomRightWindowBounds,
   getDefaultWindowBounds,
   normalizeWindowBounds,
   PET_WINDOW_DEFAULT_HEIGHT,
@@ -23,8 +24,8 @@ const display: DisplayBounds = {
 
 describe("settings", () => {
   it("exports the approved window sizing constants", () => {
-    expect(PET_WINDOW_DEFAULT_WIDTH).toBe(96);
-    expect(PET_WINDOW_DEFAULT_HEIGHT).toBe(104);
+    expect(PET_WINDOW_DEFAULT_WIDTH).toBe(144);
+    expect(PET_WINDOW_DEFAULT_HEIGHT).toBe(156);
     expect(PET_WINDOW_MIN_WIDTH).toBe(96);
     expect(PET_WINDOW_MIN_HEIGHT).toBe(104);
     expect(PET_WINDOW_MAX_WIDTH).toBe(384);
@@ -34,7 +35,7 @@ describe("settings", () => {
 
   it("defines the approved default settings", () => {
     expect(DEFAULT_SETTINGS).toEqual({
-      windowBounds: { x: 24, y: 24, width: 96, height: 104 },
+      windowBounds: { x: 24, y: 24, width: 144, height: 156 },
       alwaysOnTop: true,
       launchAtLogin: false,
       selectedAssetPack: "dough-penguin"
@@ -43,16 +44,27 @@ describe("settings", () => {
 
   it("places default window bounds at the display bottom right with a margin", () => {
     expect(getDefaultWindowBounds(display)).toEqual({
-      x: 1420,
-      y: 972,
-      width: 96,
-      height: 104
+      x: 1372,
+      y: 920,
+      width: 144,
+      height: 156
+    });
+  });
+
+  it("places a resized window at the display bottom right without changing its size", () => {
+    expect(
+      getBottomRightWindowBounds(display, { width: 192, height: 208 })
+    ).toEqual({
+      x: 1324,
+      y: 868,
+      width: 192,
+      height: 208
     });
   });
 
   it("merges partial settings with defaults", () => {
     expect(normalizeSettings({ alwaysOnTop: false }, display)).toEqual({
-      windowBounds: { x: 1420, y: 972, width: 96, height: 104 },
+      windowBounds: { x: 1372, y: 920, width: 144, height: 156 },
       alwaysOnTop: false,
       launchAtLogin: false,
       selectedAssetPack: "dough-penguin"
@@ -61,7 +73,7 @@ describe("settings", () => {
 
   it("normalizes undefined settings using display-aware defaults", () => {
     expect(normalizeSettings(undefined, display)).toEqual({
-      windowBounds: { x: 1420, y: 972, width: 96, height: 104 },
+      windowBounds: { x: 1372, y: 920, width: 144, height: 156 },
       alwaysOnTop: true,
       launchAtLogin: false,
       selectedAssetPack: "dough-penguin"
@@ -81,7 +93,7 @@ describe("settings", () => {
         },
         display
       ).windowBounds
-    ).toEqual({ x: 1420, y: 972, width: 96, height: 104 });
+    ).toEqual({ x: 1372, y: 920, width: 144, height: 156 });
   });
 
   it("resets off-screen bounds to the full default bounds", () => {
@@ -95,7 +107,7 @@ describe("settings", () => {
         },
         display
       )
-    ).toEqual({ x: 1420, y: 972, width: 96, height: 104 });
+    ).toEqual({ x: 1372, y: 920, width: 144, height: 156 });
   });
 
   it("preserves persisted size while keeping the pet window aspect ratio", () => {

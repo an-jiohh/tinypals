@@ -28,6 +28,7 @@ export type AppInfo = {
 export type PinguDesktopApi = {
   getSettings(): Promise<AppSettings>;
   updateSettings(patch: Partial<AppSettings>): Promise<AppSettings>;
+  onSettingsChanged(listener: (settings: AppSettings) => void): () => void;
   openSettingsWindow(): Promise<void>;
   showPingu(): Promise<void>;
   moveWindowToBottomRight(): Promise<AppSettings>;

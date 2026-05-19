@@ -6,17 +6,7 @@ import {
   useState,
   type PointerEvent
 } from "react";
-import petManifestData from "../assets/pingu/pet.json";
-import failedAssetUrl from "../assets/pingu/pingu_failed.png";
-import idleAssetUrl from "../assets/pingu/pingu_idle.png";
-import jumpingAssetUrl from "../assets/pingu/pingu_jumping.png";
-import reviewAssetUrl from "../assets/pingu/pingu_review.png";
-import runningAssetUrl from "../assets/pingu/pingu_running.png";
-import runningLeftAssetUrl from "../assets/pingu/pingu_running_left.png";
-import runningRightAssetUrl from "../assets/pingu/pingu_running_right.png";
-import waitingAssetUrl from "../assets/pingu/pingu_waiting.png";
-import wavingAssetUrl from "../assets/pingu/pingu_waving.png";
-import { getAssetForMood, PET_ASSET_STATES } from "../../shared/assets";
+import { getAssetForMood } from "../../shared/assets";
 import { getDragDirectionChange } from "../../shared/dragDirection";
 import {
   createInitialPetState,
@@ -27,32 +17,20 @@ import {
   PET_WINDOW_DEFAULT_WIDTH
 } from "../../shared/settings";
 import type {
-  PetAssetManifest,
-  PetAssetState,
   PetDirection,
   PetEvent,
-  PetStateAsset,
   ResolvedPetAsset
 } from "../../shared/petTypes";
 import type { AppSettings } from "../../shared/types";
+import {
+  DEFAULT_PET_ASSET_PACK_ID,
+  PET_ASSET_PACK_OPTIONS,
+  getPetAssetPack
+} from "./petAssetRegistry";
 
 const DRAG_START_DISTANCE = 3;
 const IDLE_TIMEOUT_MS = 120000;
 const IDLE_CHECK_INTERVAL_MS = 15000;
-
-const petAssetFiles = {
-  idle: idleAssetUrl,
-  "running-right": runningRightAssetUrl,
-  "running-left": runningLeftAssetUrl,
-  waving: wavingAssetUrl,
-  jumping: jumpingAssetUrl,
-  failed: failedAssetUrl,
-  waiting: waitingAssetUrl,
-  running: runningAssetUrl,
-  review: reviewAssetUrl
-} satisfies Record<PetAssetState, string>;
-
-const petManifest = createPetManifest();
 
 type DragState = {
   pointerId: number;
@@ -78,24 +56,6 @@ type FrameSize = {
 
 function createPetEvent(type: Exclude<PetEvent["type"], "user_drag_started">): PetEvent {
   return { type, now: Date.now() } as PetEvent;
-}
-
-function createPetManifest(): PetAssetManifest {
-  const source = petManifestData as PetAssetManifest;
-  const states = Object.fromEntries(
-    PET_ASSET_STATES.map((state) => [
-      state,
-      {
-        ...source.states[state],
-        file: petAssetFiles[state]
-      }
-    ])
-  ) as Record<PetAssetState, PetStateAsset>;
-
-  return {
-    ...source,
-    states
-  };
 }
 
 function getSpriteStyle(asset: ResolvedPetAsset, frameSize: FrameSize): CSSProperties {
@@ -170,12 +130,41 @@ function PetApp() {
   const dragRef = useRef<DragState | undefined>(undefined);
   const resizeRef = useRef<ResizeState | undefined>(undefined);
   const suppressNextClickRef = useRef(false);
+  const [selectedAssetPack, setSelectedAssetPack] = useState(
+    DEFAULT_PET_ASSET_PACK_ID
+  );
   const frameSize = useWindowFrameSize();
-  const asset = getAssetForMood(petManifest, petState.mood);
+  const assetPack = getPetAssetPack(selectedAssetPack);
+  const asset = getAssetForMood(assetPack.manifest, petState.mood);
   const spriteStyle = getSpriteStyle(asset, frameSize);
 
   useEffect(() => {
     dispatchPet(createPetEvent("app_started"));
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+
+    void window.pinguDesktop
+      .getSettings()
+      .then((loadedSettings) => {
+        if (mounted) {
+          setSelectedAssetPack(
+            getPetAssetPack(loadedSettings.selectedAssetPack).id
+          );
+        }
+      })
+      .catch(() => {});
+
+    const unsubscribe = window.pinguDesktop.onSettingsChanged((nextSettings) => {
+      setSelectedAssetPack(getPetAssetPack(nextSettings.selectedAssetPack).id);
+      dispatchPet(createPetEvent("settings_changed"));
+    });
+
+    return () => {
+      mounted = false;
+      unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
@@ -330,7 +319,7 @@ function PetApp() {
         onPointerCancel={finishPointerInteraction}
       >
         <span
-          key={`${asset.state}-${petState.animationNonce}`}
+          key={`${assetPack.id}-${asset.state}-${petState.animationNonce}`}
           className="pet-sprite"
           style={spriteStyle}
           aria-hidden="true"
@@ -387,6 +376,15 @@ function SettingsApp() {
     try {
       const nextSettings = await window.pinguDesktop.updateSettings({
         launchAtLogin: enabled
+      });
+      setSettings(nextSettings);
+    } catch {}
+  }
+
+  async function updateSelectedAssetPack(selectedAssetPack: string): Promise<void> {
+    try {
+      const nextSettings = await window.pinguDesktop.updateSettings({
+        selectedAssetPack
       });
       setSettings(nextSettings);
     } catch {}
@@ -496,6 +494,34 @@ function SettingsApp() {
                 </span>
                 <span className="row-action">Show</span>
               </button>
+            </div>
+          </section>
+
+          <section className="settings-section" aria-labelledby="character-title">
+            <div className="settings-section-heading">
+              <h2 id="character-title">Character</h2>
+            </div>
+            <div className="settings-card">
+              <label className="settings-row">
+                <span>
+                  <strong>Pet Character</strong>
+                  <small>Choose which hatch-pet asset pack is shown</small>
+                </span>
+                <select
+                  className="select-control"
+                  value={getPetAssetPack(settings?.selectedAssetPack).id}
+                  disabled={!settings}
+                  onChange={(event) =>
+                    void updateSelectedAssetPack(event.currentTarget.value)
+                  }
+                >
+                  {PET_ASSET_PACK_OPTIONS.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.displayName}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
           </section>
 
