@@ -1,6 +1,11 @@
 import { contextBridge, ipcRenderer } from "electron";
 import type { IpcRendererEvent } from "electron";
-import type { AppInfo, AppSettings, TinyPalsDesktopApi } from "../shared/types";
+import type {
+  AppInfo,
+  AppSettings,
+  TinyPalsDesktopApi,
+  UpdateStatus
+} from "../shared/types";
 
 function invoke<T>(channel: string, ...args: unknown[]): Promise<T> {
   return ipcRenderer.invoke(channel, ...args) as Promise<T>;
@@ -27,7 +32,21 @@ const api: TinyPalsDesktopApi = {
   setAlwaysOnTop: (enabled) =>
     invoke<AppSettings>("window:set-always-on-top", enabled),
   quit: () => invoke<void>("app:quit"),
-  getAppInfo: () => invoke<AppInfo>("app:info")
+  getAppInfo: () => invoke<AppInfo>("app:info"),
+  getUpdateStatus: () => invoke<UpdateStatus>("update:get-status"),
+  checkForUpdates: () => invoke<UpdateStatus>("update:check"),
+  downloadUpdate: () => invoke<UpdateStatus>("update:download"),
+  installUpdate: () => invoke<void>("update:install"),
+  onUpdateStatusChanged: (listener) => {
+    const handler = (_event: IpcRendererEvent, status: UpdateStatus) => {
+      listener(status);
+    };
+
+    ipcRenderer.on("update:status-changed", handler);
+    return () => {
+      ipcRenderer.removeListener("update:status-changed", handler);
+    };
+  }
 };
 
 contextBridge.exposeInMainWorld("tinyPalsDesktop", api);

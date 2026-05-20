@@ -25,6 +25,47 @@ export type AppInfo = {
   platform: NodeJS.Platform;
 };
 
+export type UpdateStatus =
+  | {
+      state: "idle";
+      currentVersion: string;
+    }
+  | {
+      state: "disabled-development";
+      currentVersion: string;
+    }
+  | {
+      state: "checking";
+      currentVersion: string;
+    }
+  | {
+      state: "not-available";
+      currentVersion: string;
+      latestVersion?: string;
+    }
+  | {
+      state: "available";
+      currentVersion: string;
+      latestVersion: string;
+      releaseDate?: string;
+    }
+  | {
+      state: "downloading";
+      currentVersion: string;
+      latestVersion?: string;
+      percent?: number;
+    }
+  | {
+      state: "downloaded";
+      currentVersion: string;
+      latestVersion: string;
+    }
+  | {
+      state: "error";
+      currentVersion: string;
+      message: string;
+    };
+
 export type TinyPalsDesktopApi = {
   getSettings(): Promise<AppSettings>;
   updateSettings(patch: Partial<AppSettings>): Promise<AppSettings>;
@@ -37,4 +78,9 @@ export type TinyPalsDesktopApi = {
   setAlwaysOnTop(enabled: boolean): Promise<AppSettings>;
   quit(): Promise<void>;
   getAppInfo(): Promise<AppInfo>;
+  getUpdateStatus(): Promise<UpdateStatus>;
+  checkForUpdates(): Promise<UpdateStatus>;
+  downloadUpdate(): Promise<UpdateStatus>;
+  installUpdate(): Promise<void>;
+  onUpdateStatusChanged(listener: (status: UpdateStatus) => void): () => void;
 };

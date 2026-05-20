@@ -12,6 +12,7 @@
 | 앱 lifecycle / IPC | `src/main/main.ts` | IPC 등록, 펫 창 이동, 설정 창 생성, 앱 시작과 종료 |
 | 설정 창 BrowserWindow 옵션 | `src/main/settingsWindowOptions.ts` | transparent host, fixed size, rounded border 충돌 방지 |
 | 트레이/메뉴바 메뉴 | `src/main/trayService.ts`, `src/main/assets/tray-icon-template.png` | `Open Settings`, `Show TinyPals`, `Quit`, template tray icon |
+| 자동 업데이트 | `src/main/updateService.ts`, `src/main/main.ts`, `src/renderer/src/updateStatusView.ts`, `package.json`, `.github/workflows/release.yml` | GitHub Releases 확인, 수동 다운로드, 재시작 설치, release publish |
 | 설정 저장 | `src/main/settingsStore.ts` | Electron `userData` 아래 `settings.json` 읽기/쓰기 |
 | 설정 기본값/정규화 | `src/shared/settings.ts` | 오른쪽 아래 기본 bounds, 화면 밖 위치 복구, 96:104 비율 resize bounds |
 | programmatic bounds event 방지 | `src/main/windowResize.ts` | 코드가 호출한 bounds 변경 이벤트를 저장 이벤트와 구분 |
@@ -36,9 +37,10 @@
 - always-on-top 기본값과 토글
 - 펫 드래그 위치 이동과 위치 저장
 - 펫 클릭 시 `user_clicked` 반응만 처리
-- 트레이/메뉴바에서 `Open Settings`, `Show TinyPals`, `Quit` 제공
+- 트레이/메뉴바에서 `Open Settings`, `Check for Updates...`, `Show TinyPals`, `Quit` 제공
 - 별도 Notion 스타일 설정 창
-- `Always on Top`, `Start at Login`, `Pet Character`, `Move to Bottom Right`, `Show TinyPals`, `Quit` UI
+- `Always on Top`, `Start at Login`, `Pet Character`, `Move to Bottom Right`, `Show TinyPals`, 업데이트 확인/다운로드/재시작, `Quit` UI
+- GitHub Releases 기반 자동 업데이트 메타데이터 추적과 release workflow
 - 설정 창 라운드 모서리와 균일한 inset border
 - 로컬 `settings.json` 저장과 기본값 복구
 - 오른쪽 아래 기본 위치와 화면 밖 window bounds 정규화
@@ -54,7 +56,6 @@
 - 일정 관리 UI
 - 통계, 리포트, CSV export
 - 클라우드 동기화
-- 자동 업데이트
 - 공식 또는 타사 IP asset과 sound
 - 패키징된 앱 기준 login item 동작 검증
 - macOS/Windows 배포 산출물 검증

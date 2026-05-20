@@ -21,12 +21,13 @@ import type {
   PetEvent,
   ResolvedPetAsset
 } from "../../shared/petTypes";
-import type { AppSettings } from "../../shared/types";
+import type { AppSettings, UpdateStatus } from "../../shared/types";
 import {
   DEFAULT_PET_ASSET_PACK_ID,
   PET_ASSET_PACK_OPTIONS,
   getPetAssetPack
 } from "./petAssetRegistry";
+import { getUpdateAction, getUpdateStatusCopy } from "./updateStatusView";
 
 const DRAG_START_DISTANCE = 3;
 const IDLE_TIMEOUT_MS = 120000;
@@ -339,6 +340,7 @@ function PetApp() {
 
 function SettingsApp() {
   const [settings, setSettings] = useState<AppSettings | undefined>();
+  const [updateStatus, setUpdateStatus] = useState<UpdateStatus | undefined>();
 
   useEffect(() => {
     let mounted = true;
@@ -352,6 +354,20 @@ function SettingsApp() {
       })
       .catch(() => {});
 
+    void window.tinyPalsDesktop
+      .getUpdateStatus()
+      .then((loadedStatus) => {
+        if (mounted) {
+          setUpdateStatus(loadedStatus);
+        }
+      })
+      .catch(() => {});
+
+    const unsubscribeUpdateStatus =
+      window.tinyPalsDesktop.onUpdateStatusChanged((nextStatus) => {
+        setUpdateStatus(nextStatus);
+      });
+
     function closeOnEscape(event: KeyboardEvent): void {
       if (event.key === "Escape") {
         window.close();
@@ -361,6 +377,7 @@ function SettingsApp() {
     window.addEventListener("keydown", closeOnEscape);
     return () => {
       mounted = false;
+      unsubscribeUpdateStatus();
       window.removeEventListener("keydown", closeOnEscape);
     };
   }, []);
@@ -402,6 +419,46 @@ function SettingsApp() {
       await window.tinyPalsDesktop.showTinyPals();
     } catch {}
   }
+
+  async function runUpdateAction(): Promise<void> {
+    if (!updateStatus) {
+      return;
+    }
+
+    const action = getUpdateAction(updateStatus);
+
+    if (action.disabled) {
+      return;
+    }
+
+    try {
+      if (action.action === "download") {
+        setUpdateStatus(await window.tinyPalsDesktop.downloadUpdate());
+        return;
+      }
+
+      if (action.action === "install") {
+        await window.tinyPalsDesktop.installUpdate();
+        return;
+      }
+
+      setUpdateStatus(await window.tinyPalsDesktop.checkForUpdates());
+    } catch {}
+  }
+
+  const updateCopy = updateStatus
+    ? getUpdateStatusCopy(updateStatus)
+    : {
+        detail: "Loading update status.",
+        title: "Version"
+      };
+  const updateAction = updateStatus
+    ? getUpdateAction(updateStatus)
+    : {
+        action: "check" as const,
+        disabled: true,
+        label: "Check"
+      };
 
   return (
     <main className="settings-shell">
@@ -530,6 +587,19 @@ function SettingsApp() {
               <h2 id="app-title">App</h2>
             </div>
             <div className="settings-card">
+              <button
+                className="settings-row action-row"
+                type="button"
+                disabled={updateAction.disabled}
+                onClick={() => void runUpdateAction()}
+              >
+                <span>
+                  <strong>{updateCopy.title}</strong>
+                  <small>{updateCopy.detail}</small>
+                </span>
+                <span className="row-action">{updateAction.label}</span>
+              </button>
+
               <button
                 className="settings-row action-row danger-row"
                 type="button"

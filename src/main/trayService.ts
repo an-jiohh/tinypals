@@ -26,6 +26,7 @@ function createTrayIcon(): Electron.NativeImage {
 }
 
 export type TrayActions = {
+  onCheckForUpdates: () => void;
   onOpenSettings: () => void;
   onShowTinyPals: () => void;
 };
@@ -38,6 +39,10 @@ function createCommandMenuItems(
       label: "Open Settings",
       accelerator: "CommandOrControl+,",
       click: actions.onOpenSettings
+    },
+    {
+      label: "Check for Updates...",
+      click: actions.onCheckForUpdates
     },
     { label: "Show TinyPals", click: actions.onShowTinyPals },
     { type: "separator" },

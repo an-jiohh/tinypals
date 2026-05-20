@@ -1,4 +1,5 @@
 import { app, BrowserWindow, Tray, ipcMain } from "electron";
+import { captureException } from "@sentry/electron/main";
 import { join } from "node:path";
 import { APP_DISPLAY_NAME } from "../shared/appIdentity";
 import {
@@ -13,8 +14,13 @@ import type {
 } from "../shared/types";
 import { createSettingsStore } from "./settingsStore";
 import { initMainSentry } from "./sentry";
+import { getElectronAutoUpdater } from "./electronUpdaterClient";
 import { createSettingsWindowOptions } from "./settingsWindowOptions";
 import { createTray, installApplicationMenu } from "./trayService";
+import {
+  createUpdateService,
+  type UpdateService
+} from "./updateService";
 import {
   createPetWindow,
   getPrimaryDisplayBounds,
@@ -33,6 +39,7 @@ type WindowMoveDelta = {
 let petWindow: BrowserWindow | undefined;
 let settingsWindow: BrowserWindow | undefined;
 let tray: Tray | undefined;
+let updateService: UpdateService | undefined;
 
 app.setName(APP_DISPLAY_NAME);
 
@@ -44,6 +51,28 @@ initMainSentry(app.getVersion());
 
 const store = createSettingsStore(app.getPath("userData"), getPrimaryDisplayBounds);
 const programmaticBoundsSuppressor = createProgrammaticBoundsSuppressor();
+
+function getUpdateService(): UpdateService {
+  if (!updateService) {
+    updateService = createUpdateService({
+      app: {
+        getVersion: () => app.getVersion(),
+        isPackaged: app.isPackaged
+      },
+      captureException,
+      updater: getElectronAutoUpdater()
+    });
+    updateService.onStatusChanged((status) => {
+      for (const window of [petWindow, settingsWindow]) {
+        if (window && !window.isDestroyed()) {
+          window.webContents.send("update:status-changed", status);
+        }
+      }
+    });
+  }
+
+  return updateService;
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -235,6 +264,11 @@ async function showOrCreateSettingsWindow(): Promise<void> {
   await loadRendererWindow(settingsWindow, "settings");
 }
 
+async function showSettingsAndCheckForUpdates(): Promise<void> {
+  await showOrCreateSettingsWindow();
+  await getUpdateService().checkForUpdates();
+}
+
 async function movePetWindowToBottomRight(): Promise<AppSettings> {
   const display = getPrimaryDisplayBounds();
   const currentSettings = await store.load();
@@ -320,6 +354,14 @@ function registerIpc(): void {
       platform: process.platform
     };
   });
+
+  ipcMain.handle("update:get-status", () => getUpdateService().getStatus());
+
+  ipcMain.handle("update:check", () => getUpdateService().checkForUpdates());
+
+  ipcMain.handle("update:download", () => getUpdateService().downloadUpdate());
+
+  ipcMain.handle("update:install", () => getUpdateService().installUpdate());
 }
 
 app.on("window-all-closed", () => {
@@ -334,6 +376,9 @@ void app.whenReady().then(async () => {
   registerIpc();
   await createWindow();
   const menuActions = {
+    onCheckForUpdates: () => {
+      void showSettingsAndCheckForUpdates();
+    },
     onOpenSettings: () => {
       void showOrCreateSettingsWindow();
     },
@@ -346,4 +391,7 @@ void app.whenReady().then(async () => {
 
   const settings = await store.load();
   app.setLoginItemSettings({ openAtLogin: settings.launchAtLogin });
+  setTimeout(() => {
+    void getUpdateService().checkForUpdates();
+  }, 30000);
 });

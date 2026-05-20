@@ -1,7 +1,7 @@
 import type { BrowserWindowConstructorOptions } from "electron";
 
 export const SETTINGS_WINDOW_WIDTH = 420;
-export const SETTINGS_WINDOW_HEIGHT = 420;
+export const SETTINGS_WINDOW_HEIGHT = 500;
 export const SETTINGS_WINDOW_BACKGROUND = "#00000000";
 
 export function createSettingsWindowOptions(

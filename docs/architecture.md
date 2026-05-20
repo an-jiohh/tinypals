@@ -11,6 +11,7 @@
 - Vite 6 / electron-vite 3: 개발 서버와 빌드 파이프라인
 - Vitest 3: shared 로직과 main helper 단위 테스트
 - electron-builder 26: macOS dmg, Windows nsis 패키징 설정
+- electron-updater 6: GitHub Releases 기반 업데이트 확인과 설치
 
 주요 명령은 `package.json`에 정의되어 있습니다.
 
@@ -18,7 +19,8 @@
 - `npm run test`: Vitest 단위 테스트
 - `npm run typecheck`: TypeScript 타입 검사
 - `npm run build`: typecheck, test, electron-vite build
-- `npm run dist:mac`, `npm run dist:win`: 패키징
+- `npm run dist:mac`, `npm run dist:win`: 로컬 패키징
+- `npm run release:mac`, `npm run release:win`: GitHub Releases publish 패키징
 
 앱 표시 이름은 `src/shared/appIdentity.ts`의 `APP_DISPLAY_NAME`에서 관리합니다.
 macOS 메뉴바와 패키징 metadata의 이름은 `TinyPals`로 맞추고, 배포용 아이콘 파일은
@@ -41,6 +43,7 @@ flowchart LR
   Main --> SettingsWindow["BrowserWindow\nsettings window"]
   Main --> Store["settings.json\nElectron userData"]
   Main --> Tray["Tray menu"]
+  Main --> Updates["electron-updater\nGitHub Releases"]
   Renderer --> Assets["PNG spritesheet asset pack"]
   Renderer --> Shared["Shared state/types"]
   Main --> Shared
@@ -57,6 +60,7 @@ main process는 OS와 가까운 책임을 가집니다.
 - 창 위치 이동, 오른쪽 아래 이동
 - `settings.json` 로드/저장
 - 트레이/메뉴바 메뉴 생성
+- GitHub Releases 업데이트 확인, 다운로드, 설치 재시작
 - 앱 종료와 macOS activate 처리
 - IPC endpoint 등록
 
@@ -106,6 +110,11 @@ type TinyPalsDesktopApi = {
   setAlwaysOnTop(enabled: boolean): Promise<AppSettings>;
   quit(): Promise<void>;
   getAppInfo(): Promise<AppInfo>;
+  getUpdateStatus(): Promise<UpdateStatus>;
+  checkForUpdates(): Promise<UpdateStatus>;
+  downloadUpdate(): Promise<UpdateStatus>;
+  installUpdate(): Promise<void>;
+  onUpdateStatusChanged(listener: (status: UpdateStatus) => void): () => void;
 };
 ```
 

@@ -340,6 +340,19 @@ select {
   cursor: pointer;
 }
 
+.action-row:disabled {
+  cursor: default;
+}
+
+.action-row:disabled:hover,
+.action-row:disabled:focus-visible {
+  background: transparent;
+}
+
+.action-row:disabled .row-action {
+  opacity: 0.55;
+}
+
 .danger-row strong {
   color: #a63a3a;
 }

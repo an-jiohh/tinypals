@@ -27,6 +27,16 @@ npm run typecheck
 npm run build
 ```
 
+릴리스 패키징:
+
+```bash
+npm run dist:mac
+npm run dist:win
+```
+
+GitHub Releases에 배포하려면 `vX.Y.Z` 태그를 push하거나, 로컬에서 `GH_TOKEN`을 설정한 뒤
+`npm run release:mac` 또는 `npm run release:win`을 실행합니다.
+
 격리된 설정 파일로 수동 검증하려면 `TINYPALS_USER_DATA_DIR`를 지정합니다.
 
 ```bash
@@ -63,6 +73,7 @@ SENTRY_AUTH_TOKEN=your-source-map-upload-token
 - 펫 클릭 시 짧은 캐릭터 반응
 - 트레이/메뉴바에서 설정 창 열기
 - `Always on Top`, `Start at Login`, `Pet Character`, `Move to Bottom Right`, `Show TinyPals`, `Quit` 설정 UI
+- GitHub Releases 기반 업데이트 확인, 다운로드, 재시작 설치 UI
 - 로컬 `settings.json` 저장
 - 상태별 PNG row spritesheet asset pack 구조
 - 추후 타이머/일정 기능 연결을 위한 펫 이벤트 타입 예약
