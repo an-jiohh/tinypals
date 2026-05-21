@@ -24,6 +24,18 @@ User-facing inputs are optional. If the user omits a pet name, infer one from th
 - The logical frame size remains `96x104`; raster row spritesheets should preserve the source atlas cell resolution, currently typically `384x416`.
 - The skill does not depend on another installed `hatch-pet` skill. When commands need `SKILL_DIR`, point it at this fork's directory.
 
+## Public Repository Notes
+
+This skill is included in the TinyPals repository as optional contributor tooling. It is not required at app runtime, and generated references or intermediate run folders should not be committed by default.
+
+For public assets:
+
+- Use `license: custom` unless another license has been verified and documented.
+- Keep third-party logos, readable marks, UI screenshots, slogans, protected character names, and distinctive franchise elements out of prompts and output.
+- Prefer user-owned or explicitly licensed references. If a reference is only a style/pose guide, transform it into a distinct TinyPals character before export.
+- Commit only the final app asset pack files under `src/renderer/assets/<asset-id>/` unless the maintainer explicitly wants QA artifacts.
+- Update `docs/asset-packs.md` and `docs/research/tinypals-ip-safety-2026-05-20.md` if the asset contract or IP policy changes.
+
 ## Generation Delegation
 
 Use `$imagegen` for all normal visual generation.

@@ -2,6 +2,7 @@
   "name": "tinypals-desktop-pet",
   "version": "0.1.0",
   "description": "A minimal floating desktop pet with local-first settings and replaceable assets.",
+  "license": "MIT",
   "private": true,
   "main": "out/main/index.js",
   "type": "module",

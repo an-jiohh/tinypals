@@ -1,25 +1,26 @@
 # TinyPals Desktop Pet
 
-TinyPals Desktop Pet은 데스크탑 위에 작게 떠 있는 미니멀한 가상 펫 앱입니다.
-현재 v1은 공부 타이머가 아니라, 추후 타이머와 일정 관리 기능을 붙일 수 있는
-플로팅 펫 기반을 먼저 구현한 상태입니다.
+[한국어 README](README.ko.md)
 
-## 빠른 실행
+TinyPals Desktop Pet is a small floating desktop companion built with Electron,
+React, and replaceable animated character asset packs. The current v1 focuses on
+the pet window, settings, updates, and asset-pack infrastructure; timer,
+schedule, and reporting features are planned future layers.
 
-요구 사항:
+## Requirements
 
-- Node.js 22.12 이상
-- npm 10 이상
-- macOS 또는 Windows 수동 검증 기준
+- Node.js 22.12 or newer
+- npm 10 or newer
+- macOS or Windows for manual app verification
 
-개발 실행:
+## Quick Start
 
 ```bash
 npm install
 npm run dev
 ```
 
-검증:
+Run the standard checks:
 
 ```bash
 npm run test
@@ -27,26 +28,94 @@ npm run typecheck
 npm run build
 ```
 
-릴리스 패키징:
+Package locally:
 
 ```bash
 npm run dist:mac
 npm run dist:win
 ```
 
-GitHub Releases에 배포하려면 `vX.Y.Z` 태그를 push하거나, 로컬에서 `GH_TOKEN`을 설정한 뒤
-`npm run release:mac` 또는 `npm run release:win`을 실행합니다.
-
-격리된 설정 파일로 수동 검증하려면 `TINYPALS_USER_DATA_DIR`를 지정합니다.
+Use an isolated settings directory for manual testing:
 
 ```bash
 TINYPALS_USER_DATA_DIR=/private/tmp/tinypals-desktop-pet-user-data npm run dev
 ```
 
-## Sentry 오류 수집
+## Current Features
 
-배포 후 main process와 renderer 오류를 Sentry로 보낼 수 있습니다.
-`.env.example`을 기준으로 로컬 `.env` 또는 CI secret을 설정합니다.
+- Transparent always-on-top floating pet window
+- Draggable pet position with local `settings.json` persistence
+- Resizable pet window that preserves the 96:104 frame ratio
+- Separate tray/menu-bar settings window
+- Character selection through registered asset packs
+- PNG row spritesheet animation for the 9 hatch-pet states
+- GitHub Releases update check, download, and install flow
+- Optional Sentry crash/error reporting
+
+Not implemented yet:
+
+- Study timer UI
+- Schedule management
+- Stats, reports, or export
+- Cloud sync
+- Third-party licensed characters, sounds, or brand assets
+
+## Character Asset Packs
+
+TinyPals uses static asset-pack registration instead of runtime folder scanning.
+Each asset pack lives under `src/renderer/assets/<asset-id>/` and contains:
+
+- `pet.json`
+- `spritesheet-2x.png`
+- nine state row PNG files for `idle`, `running-right`, `running-left`,
+  `waving`, `jumping`, `failed`, `waiting`, `running`, and `review`
+
+The logical frame size is `96x104`. Current renderer row images preserve the
+hatch-pet source atlas cell resolution where possible, typically `384x416` for
+2x atlases and `192x208` for 1x atlases.
+
+Registered packs currently include:
+
+- `dough-penguin`: default custom generated pet
+- `dough-penguin-test`: duplicate demo/test pack used to verify character selection
+- `artist-penguin`: custom generated artist pet
+- `cleaner-penguin`: custom generated cleaner pet
+
+To add a new pack:
+
+1. Export the files into `src/renderer/assets/<asset-id>/`.
+2. Add static imports and a registry entry in `src/renderer/src/petAssetRegistry.ts`.
+3. Update `src/renderer/src/petAssetRegistry.test.ts`.
+4. Run `npm run test`, `npm run typecheck`, and `npm run build`.
+
+QA contact sheets are review artifacts only. Do not use labeled contact sheets as
+production sprite sources.
+
+## TinyPals Hatch Pet Skill
+
+This repository includes `skills/tinypals-hatch-pet` as optional development
+tooling. It is a self-contained Codex skill for generating, validating,
+exporting, and registering TinyPals-compatible pet spritesheets.
+
+Install it into your local Codex skills directory:
+
+```bash
+npm run skill:tinypals:install
+```
+
+Validate the repo-local and installed skill copy:
+
+```bash
+npm run skill:tinypals:validate
+```
+
+The app does not require this skill at runtime. It is only for contributors who
+want to create or repair character assets using the hatch-pet workflow.
+
+## Sentry
+
+Sentry is disabled unless a DSN is provided. Use `.env.example` as the template
+for local `.env` files or CI secrets.
 
 ```bash
 VITE_SENTRY_DSN=https://public-key@o0.ingest.sentry.io/project-id
@@ -56,57 +125,51 @@ SENTRY_ENVIRONMENT=production
 SENTRY_ORG=your-org-slug
 SENTRY_PROJECT=your-project-slug
 SENTRY_AUTH_TOKEN=your-source-map-upload-token
+SENTRY_UPLOAD_SOURCEMAPS=false
 ```
 
-- `VITE_SENTRY_DSN`은 renderer 오류 수집을 켜는 값입니다.
-- `SENTRY_DSN`은 Electron main process 오류 수집에 사용합니다.
-- `SENTRY_AUTH_TOKEN`은 source map 업로드에만 필요하며 git에 커밋하면 안 됩니다.
-- `SENTRY_ORG`, `SENTRY_PROJECT`, `SENTRY_AUTH_TOKEN`이 모두 있을 때만 배포 빌드에서
-  source map을 만들고 Sentry에 업로드합니다.
-- 임시로 비활성화하려면 `SENTRY_DISABLED=true`, `VITE_SENTRY_DISABLED=true`를 설정합니다.
+Rules:
 
-## 현재 구현된 기능
+- Never commit real `.env` files or secret values.
+- `SENTRY_AUTH_TOKEN` is only for source map upload.
+- Source maps are generated and uploaded only when `SENTRY_UPLOAD_SOURCEMAPS=true`,
+  `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, and `SENTRY_PROJECT` are all present.
+- Set `SENTRY_DISABLED=true` and `VITE_SENTRY_DISABLED=true` to force-disable
+  reporting.
+- Runtime Sentry config sets `sendDefaultPii: false`.
 
-- 작은 custom asset pack 기반 펫을 투명 frameless 창으로 표시
-- always-on-top 플로팅 창
-- 펫 드래그로 위치 이동
-- 펫 클릭 시 짧은 캐릭터 반응
-- 트레이/메뉴바에서 설정 창 열기
-- `Always on Top`, `Start at Login`, `Pet Character`, `Move to Bottom Right`, `Show TinyPals`, `Quit` 설정 UI
-- GitHub Releases 기반 업데이트 확인, 다운로드, 재시작 설치 UI
-- 로컬 `settings.json` 저장
-- 상태별 PNG row spritesheet asset pack 구조
-- 추후 타이머/일정 기능 연결을 위한 펫 이벤트 타입 예약
+## Release
 
-아직 구현하지 않은 기능:
-
-- 공부 타이머 UI
-- 일정 관리
-- 통계/리포트
-- 클라우드 동기화
-- 공식 또는 타사 IP 에셋과 사운드
-
-## 문서
-
-- [아키텍처와 기술 스택](docs/architecture.md)
-- [구현 지도와 현재 상황](docs/implementation-map.md)
-- [TinyPals IP 안전 원칙](docs/research/tinypals-ip-safety-2026-05-20.md)
-- [제품 설계 문서](docs/superpowers/specs/2026-05-16-tinypals-desktop-pet-design.md)
-- [구현 계획 기록](docs/superpowers/plans/2026-05-16-tinypals-desktop-pet.md)
-
-## 개발 메모
-
-- 개발 모드의 `Start at login`은 macOS에서 실제 로그인 항목 등록이 거부될 수 있습니다.
-  이 경우 터미널에 `Unable to set login item: Operation not permitted` 로그가 찍히지만,
-  앱 개발과 설정값 저장에는 영향이 없습니다.
-- Electron 바이너리가 누락되어 `Electron uninstall`이 나오면 다음 명령으로 복구합니다.
+GitHub release publishing is configured in `.github/workflows/release.yml`.
+Push a `vX.Y.Z` tag whose version matches `package.json`, or run a local release
+script with `GH_TOKEN` configured:
 
 ```bash
-node node_modules/electron/install.js
+npm run release:mac
+npm run release:win
 ```
 
-## IP 주의
+Local package builds without publishing use `npm run dist:mac` and
+`npm run dist:win`.
 
-TinyPals는 이 프로젝트의 새 제품명입니다. 공개 배포 전에는 기존 캐릭터 IP를 연상시키는
-이름, 외형, 사운드, 세계관을 직접 사용하지 않습니다. 캐릭터는 custom asset pack과
-교체 가능한 hatch-pet 구조로 관리합니다.
+## Documentation
+
+- [Architecture](docs/architecture.md)
+- [Implementation map](docs/implementation-map.md)
+- [UX rules](docs/ux-rules.md)
+- [Asset pack guide](docs/asset-packs.md)
+- [App icon guide](docs/app-icons.md)
+- [IP and asset safety](docs/research/tinypals-ip-safety-2026-05-20.md)
+- [Security policy](SECURITY.md)
+
+## License and Asset Notice
+
+Source code in this repository is released under the MIT License. See
+[LICENSE](LICENSE).
+
+Included character images and spritesheets are custom generated project assets
+tracked for TinyPals development. They are not official assets from any
+third-party character, brand, or franchise. Before adding reference-derived
+assets, verify that the reference can be used for the intended distribution
+scope and avoid names, silhouettes, sounds, worlds, or marks that could create
+third-party IP confusion.

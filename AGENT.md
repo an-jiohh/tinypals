@@ -1,32 +1,47 @@
 # AGENT.md
 
 ## Project Intent
-This project is a minimal desktop floating virtual pet.
-The first product layer is the companion pet itself; timer, schedule, and study/work features are future additions.
-The primary UX should feel like a small always-on-top companion, not a dashboard-first productivity app.
+
+TinyPals is a minimal desktop floating virtual pet. The current product layer is
+the companion pet itself; timer, schedule, and study/work features are future
+additions. The UX should feel like a small always-on-top companion, not a
+dashboard-first productivity app.
 
 ## Workflow
-- If the planning intent changes, always ask the user whether the product intent file should be updated next.
+
 - Ask before adding production dependencies.
-- Do not add or expand `AGENT.md` instructions without an explicit user request.
+- Keep changes consistent with the existing Electron, React, TypeScript, and
+  static asset-pack patterns.
+- Do not commit real `.env` files, generated local app data, or personal Codex
+  environment files.
+- Treat `skills/tinypals-hatch-pet` as optional contributor tooling, not runtime
+  app code.
 
 ## Source of Truth
-Before implementation, read the planning markdown file in this repository.
-Summarize the intended product, UX style, and MVP scope before creating project files.
 
-- Overall overview and setup instructions: `README.md`
-- Tech stack and runtime structure: `docs/architecture.md`
-- Where to modify each feature: `docs/implementation-map.md`
-- Product UX rules: `docs/ux-rules.md`
+- Overview and setup: `README.md`
+- Runtime architecture: `docs/architecture.md`
+- Feature modification map: `docs/implementation-map.md`
+- UX constraints: `docs/ux-rules.md`
+- Asset-pack workflow: `docs/asset-packs.md`
 - Character/IP safety: `docs/research/tinypals-ip-safety-2026-05-20.md`
-- Product intent: `docs/superpowers/specs/2026-05-16-tinypals-desktop-pet-design.md`
-- Implementation plan history: `docs/superpowers/plans/2026-05-16-tinypals-desktop-pet.md`
+- Security policy: `SECURITY.md`
 
 ## Verification
-When code exists:
-- Run the project’s test/check commands before final response.
-- If visual UI changes are made, verify with an actual running app or screenshot.
-- Report any checks that could not be run.
+
+For code or public documentation changes, run the relevant checks before the
+final response:
+
+```bash
+npm run test
+npm run typecheck
+npm run build
+```
+
+For visual UI changes, verify with an actual running app or screenshot when
+practical. Report any checks that could not be run.
 
 ## Git
-- Write Git-related messages in detail, including what changed, why it changed, and any important context.
+
+Write Git-related messages in Korean and include what changed, why it changed,
+and any important verification context.

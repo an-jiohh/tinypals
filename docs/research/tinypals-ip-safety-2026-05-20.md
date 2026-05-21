@@ -1,34 +1,71 @@
-# TinyPals IP Safety Notes
+# TinyPals IP and Asset Safety
 
 작성일: 2026-05-20
+공개 정리 업데이트: 2026-05-22
 
-## 목적
+## Purpose
 
-TinyPals는 이 프로젝트의 새 제품명이다. 이 문서는 제품과 코드베이스에서 기존 캐릭터 IP
-흔적을 제거하고, 이후 캐릭터 에셋을 만들 때 권리 리스크를 낮추기 위한 기준을 정리한다.
+TinyPals is this project's product name. This document defines the public
+repository rules for character names, reference-derived artwork, generated
+spritesheets, and third-party IP risk.
 
-## 원칙
+This is an engineering checklist, not legal advice. Final distribution decisions
+should still be reviewed by the maintainer.
 
-- 제품명, 앱 ID, 공개 API, 문서, 에셋 경로에는 기존 캐릭터 IP 이름을 사용하지 않는다.
-- 캐릭터는 `custom` 라이선스의 교체 가능한 hatch-pet asset pack으로 관리한다.
-- 공개 배포 전에는 특정 기존 캐릭터의 이름, 실루엣, 대표 사운드, 세계관, 가족/친구 관계를
-  직접 차용하지 않는다.
-- 타사 IP 요소를 쓰려면 사용 범위와 배포 범위에 맞는 권리 확인을 먼저 끝낸다.
-- visual QA에서는 특정 기존 캐릭터와 혼동될 정도로 닮은 외형, 소품, 소리, 문구가 남아
-  있지 않은지 확인한다.
+## Repository Policy
 
-## 현재 기본 캐릭터
+- Do not use third-party character names, franchise names, logos, sounds,
+  catchphrases, worlds, or relationship lore in source, docs, metadata, or asset
+  paths unless rights have been confirmed.
+- Keep character assets replaceable through the hatch-pet asset-pack structure.
+- Use `license: "custom"` for project-generated character assets unless a
+  different license has been verified and documented.
+- Do not copy third-party logos, readable marks, UI screenshots, slogans, or
+  distinctive brand dress into generated assets.
+- Review any reference-derived asset for confusing similarity before public
+  release.
 
-현재 기본 asset pack은 `Dough Penguin`이다. `pet.json`의 `license`는 `custom`이며,
-`src/renderer/assets/tinypals/` 아래 상태별 PNG row spritesheet와 `spritesheet-2x.png`로
-관리한다.
+## Current Included Assets
 
-이 캐릭터는 제품 동작과 에셋 교체 구조를 검증하기 위한 기본 커스텀 에셋이다. 향후 새
-캐릭터를 추가할 때도 동일한 상태 키와 manifest 구조를 유지한다.
+Current public asset packs:
 
-## 검증 체크
+- `dough-penguin`: default custom generated pet
+- `dough-penguin-test`: duplicate demo/test pack for validating character selection
+- `artist-penguin`: custom generated artist pet
+- `cleaner-penguin`: custom generated cleaner pet
 
-- legacy IP 이름 검색 결과가 active source, docs, package metadata에서 비어 있어야 한다.
-- 새 에셋을 넣은 뒤 `npm run test`, `npm run typecheck`, `npm run build`를 통과해야 한다.
-- 캐릭터 변경 시 `docs/app-icons.md`와 `docs/implementation-map.md`의 asset 교체 기준을 함께
-  확인한다.
+These assets are tracked as TinyPals project assets and are not official assets
+from any third-party character, brand, or franchise.
+
+## Review Checklist
+
+Before adding or publishing a new asset pack:
+
+- Search active source, docs, package metadata, and asset names for legacy or
+  third-party IP names.
+- Confirm the character does not rely on a protected name, exact silhouette,
+  signature prop combination, sound, or fictional setting.
+- Confirm generated rows have no text, logos, hidden labels, contact-sheet
+  borders, frame numbers, or QA guide marks.
+- Confirm `pet.json` has the correct `id`, `displayName`, `description`,
+  `license`, `frame`, and all nine hatch-pet states.
+- Run `npm run test`, `npm run typecheck`, and `npm run build`.
+
+## Reference Images
+
+Reference images can be useful for style and pose direction, but they are not
+automatically safe for redistribution. When using references:
+
+- Prefer user-owned or explicitly licensed references.
+- Translate references into a distinct project character rather than copying a
+  recognizable protected work.
+- Avoid trademarked names and visual signatures in generated prompts and output.
+- Keep source references out of production asset folders unless they are meant
+  to be publicly redistributed.
+
+## Related Docs
+
+- `README.md`
+- `docs/asset-packs.md`
+- `docs/app-icons.md`
+- `docs/implementation-map.md`

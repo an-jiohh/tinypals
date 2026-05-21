@@ -23,7 +23,7 @@
 | 캐릭터 registry | `src/renderer/src/petAssetRegistry.ts` | 설정 선택지와 정적 asset pack import |
 | 스타일/애니메이션 | `src/renderer/src/styles.css` | 펫 애니메이션, Notion 스타일 설정 창, rounded border |
 | 설정 창 스타일 회귀 테스트 | `src/renderer/src/settingsStyles.test.ts` | 라운드 유지와 transparent shell 조건 확인 |
-| asset pack | `src/renderer/assets/tinypals/*`, `src/renderer/assets/tinypals-test/*` | `pet.json`과 상태별 PNG row spritesheet |
+| asset pack | `src/renderer/assets/*/pet.json`, `src/renderer/src/petAssetRegistry.ts`, `docs/asset-packs.md` | 공개 asset pack 계약, static import 등록, 상태별 PNG row spritesheet |
 | asset 검증 | `src/shared/assets.ts` | 필수 상태 asset 누락 검증과 fallback |
 
 ## 현재 구현 완료
@@ -45,6 +45,7 @@
 - 로컬 `settings.json` 저장과 기본값 복구
 - 오른쪽 아래 기본 위치와 화면 밖 window bounds 정규화
 - Dough Penguin PNG row spritesheet asset pack과 복사본 테스트 pack
+- Artist Penguin, Cleaner Penguin custom asset pack
 - `idle`, `running-right`, `running-left`, `waving`, `jumping`, `failed`, `waiting`, `running`, `review` 상태
 - 타이머/일정 기능 연결용 reserved event 타입
 - 단위 테스트와 build pipeline
@@ -89,7 +90,7 @@ v1에는 schedule 저장소가 없습니다. 일정 기능을 추가할 때는 m
 
 - 새 asset 폴더의 `pet.json` `id`, `license`, `displayName`, `description`을 asset pack에 맞게 변경
 - hatch-pet 2x 투명 atlas를 새 asset 폴더의 `spritesheet-2x.png`로 배치
-- `npm run assets:tinypals`를 실행해 atlas 검증과 상태별 PNG row spritesheet 재생성을 함께 수행
+- `$tinypals-hatch-pet` 또는 `scripts/build-tinypals-hatch-assets.py`로 atlas 검증과 상태별 PNG row spritesheet 생성을 수행
 - frame 크기나 frame count가 바뀌면 `pet.json`과 asset 검증 테스트를 함께 갱신
 - `src/renderer/src/petAssetRegistry.test.ts`에 새 pack 노출과 manifest 검증을 반영
 - QA contact sheet는 배경/라벨/border가 RGB로 합성된 검토 이미지이므로 추출 원본으로 사용하지 않음
@@ -145,7 +146,5 @@ TINYPALS_USER_DATA_DIR=/private/tmp/tinypals-desktop-pet-user-data npm run dev
 ## 기존 문서와의 관계
 
 - 캐릭터/IP 기준은 `docs/research/tinypals-ip-safety-2026-05-20.md`를 따른다.
+- asset pack 추가 기준은 `docs/asset-packs.md`를 따른다.
 - 현재 구현 기준은 `README.md`, `docs/architecture.md`, 이 문서를 우선한다.
-- `docs/superpowers/specs/2026-05-16-tinypals-desktop-pet-design.md`와
-  `docs/superpowers/plans/2026-05-16-tinypals-desktop-pet.md`는 과거 결정 기록으로 유지한다.
-  현재 문서와 충돌하면 현재 문서를 우선한다.
