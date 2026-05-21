@@ -1,14 +1,14 @@
 {
-  "id": "dough-penguin",
-  "displayName": "Dough Penguin",
-  "description": "A small stop-motion clay penguin baker pet with a paper chef hat, mixing bowl, and flour props.",
+  "id": "cleaner-penguin",
+  "displayName": "Cleaner Penguin",
+  "description": "A clay cleaner penguin pet holding a long mop handle with a teal cleaning cloth.",
   "license": "custom",
   "source": {
     "type": "hatch-pet-atlas",
     "atlasFile": "spritesheet-2x.png",
     "cell": {
-      "width": 384,
-      "height": 416
+      "width": 192,
+      "height": 208
     },
     "outputScale": 1
   },
@@ -18,55 +18,55 @@
   },
   "states": {
     "idle": {
-      "file": "tinypals_idle.png",
+      "file": "cleaner_penguin_idle.png",
       "frameCount": 6,
-      "fps": 3,
+      "fps": 6,
       "loop": true
     },
     "running-right": {
-      "file": "tinypals_running_right.png",
+      "file": "cleaner_penguin_running_right.png",
       "frameCount": 8,
-      "fps": 7,
+      "fps": 10,
       "loop": true
     },
     "running-left": {
-      "file": "tinypals_running_left.png",
+      "file": "cleaner_penguin_running_left.png",
       "frameCount": 8,
-      "fps": 7,
+      "fps": 10,
       "loop": true
     },
     "waving": {
-      "file": "tinypals_waving.png",
+      "file": "cleaner_penguin_waving.png",
       "frameCount": 4,
-      "fps": 6,
+      "fps": 8,
       "loop": false
     },
     "jumping": {
-      "file": "tinypals_jumping.png",
+      "file": "cleaner_penguin_jumping.png",
       "frameCount": 5,
-      "fps": 7,
+      "fps": 10,
       "loop": false
     },
     "failed": {
-      "file": "tinypals_failed.png",
+      "file": "cleaner_penguin_failed.png",
       "frameCount": 8,
-      "fps": 7,
+      "fps": 8,
       "loop": false
     },
     "waiting": {
-      "file": "tinypals_waiting.png",
+      "file": "cleaner_penguin_waiting.png",
       "frameCount": 6,
       "fps": 6,
       "loop": true
     },
     "running": {
-      "file": "tinypals_running.png",
+      "file": "cleaner_penguin_running.png",
       "frameCount": 6,
       "fps": 8,
       "loop": true
     },
     "review": {
-      "file": "tinypals_review.png",
+      "file": "cleaner_penguin_review.png",
       "frameCount": 6,
       "fps": 6,
       "loop": true

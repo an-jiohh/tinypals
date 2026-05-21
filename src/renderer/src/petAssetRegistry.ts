@@ -18,6 +18,26 @@ import tinypalsTestRunningLeftAssetUrl from "../assets/tinypals-test/tinypals_ru
 import tinypalsTestRunningRightAssetUrl from "../assets/tinypals-test/tinypals_running_right.png";
 import tinypalsTestWaitingAssetUrl from "../assets/tinypals-test/tinypals_waiting.png";
 import tinypalsTestWavingAssetUrl from "../assets/tinypals-test/tinypals_waving.png";
+import artistPenguinManifestData from "../assets/artist-penguin/pet.json";
+import artistPenguinFailedAssetUrl from "../assets/artist-penguin/artist_penguin_failed.png";
+import artistPenguinIdleAssetUrl from "../assets/artist-penguin/artist_penguin_idle.png";
+import artistPenguinJumpingAssetUrl from "../assets/artist-penguin/artist_penguin_jumping.png";
+import artistPenguinReviewAssetUrl from "../assets/artist-penguin/artist_penguin_review.png";
+import artistPenguinRunningAssetUrl from "../assets/artist-penguin/artist_penguin_running.png";
+import artistPenguinRunningLeftAssetUrl from "../assets/artist-penguin/artist_penguin_running_left.png";
+import artistPenguinRunningRightAssetUrl from "../assets/artist-penguin/artist_penguin_running_right.png";
+import artistPenguinWaitingAssetUrl from "../assets/artist-penguin/artist_penguin_waiting.png";
+import artistPenguinWavingAssetUrl from "../assets/artist-penguin/artist_penguin_waving.png";
+import cleanerPenguinManifestData from "../assets/cleaner-penguin/pet.json";
+import cleanerPenguinFailedAssetUrl from "../assets/cleaner-penguin/cleaner_penguin_failed.png";
+import cleanerPenguinIdleAssetUrl from "../assets/cleaner-penguin/cleaner_penguin_idle.png";
+import cleanerPenguinJumpingAssetUrl from "../assets/cleaner-penguin/cleaner_penguin_jumping.png";
+import cleanerPenguinReviewAssetUrl from "../assets/cleaner-penguin/cleaner_penguin_review.png";
+import cleanerPenguinRunningAssetUrl from "../assets/cleaner-penguin/cleaner_penguin_running.png";
+import cleanerPenguinRunningLeftAssetUrl from "../assets/cleaner-penguin/cleaner_penguin_running_left.png";
+import cleanerPenguinRunningRightAssetUrl from "../assets/cleaner-penguin/cleaner_penguin_running_right.png";
+import cleanerPenguinWaitingAssetUrl from "../assets/cleaner-penguin/cleaner_penguin_waiting.png";
+import cleanerPenguinWavingAssetUrl from "../assets/cleaner-penguin/cleaner_penguin_waving.png";
 import { PET_ASSET_STATES } from "../../shared/assets";
 import type {
   PetAssetManifest,
@@ -64,8 +84,40 @@ const tinypalsTestAssetFiles = {
   review: tinypalsTestReviewAssetUrl
 } satisfies PetAssetFileMap;
 
+const artistPenguinAssetFiles = {
+  idle: artistPenguinIdleAssetUrl,
+  "running-right": artistPenguinRunningRightAssetUrl,
+  "running-left": artistPenguinRunningLeftAssetUrl,
+  waving: artistPenguinWavingAssetUrl,
+  jumping: artistPenguinJumpingAssetUrl,
+  failed: artistPenguinFailedAssetUrl,
+  waiting: artistPenguinWaitingAssetUrl,
+  running: artistPenguinRunningAssetUrl,
+  review: artistPenguinReviewAssetUrl
+} satisfies PetAssetFileMap;
+
+const cleanerPenguinAssetFiles = {
+  idle: cleanerPenguinIdleAssetUrl,
+  "running-right": cleanerPenguinRunningRightAssetUrl,
+  "running-left": cleanerPenguinRunningLeftAssetUrl,
+  waving: cleanerPenguinWavingAssetUrl,
+  jumping: cleanerPenguinJumpingAssetUrl,
+  failed: cleanerPenguinFailedAssetUrl,
+  waiting: cleanerPenguinWaitingAssetUrl,
+  running: cleanerPenguinRunningAssetUrl,
+  review: cleanerPenguinReviewAssetUrl
+} satisfies PetAssetFileMap;
+
 export const petAssetPacks = [
   createPetAssetPack(tinypalsManifestData as PetAssetManifest, tinypalsAssetFiles),
+  createPetAssetPack(
+    artistPenguinManifestData as PetAssetManifest,
+    artistPenguinAssetFiles
+  ),
+  createPetAssetPack(
+    cleanerPenguinManifestData as PetAssetManifest,
+    cleanerPenguinAssetFiles
+  ),
   createPetAssetPack(
     tinypalsTestManifestData as PetAssetManifest,
     tinypalsTestAssetFiles

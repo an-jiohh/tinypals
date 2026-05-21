@@ -8,10 +8,12 @@ import {
 } from "./petAssetRegistry";
 
 describe("petAssetRegistry", () => {
-  it("exposes the default and copied test asset packs for settings", () => {
+  it("exposes registered asset packs for settings", () => {
     expect(DEFAULT_PET_ASSET_PACK_ID).toBe("dough-penguin");
     expect(PET_ASSET_PACK_OPTIONS).toEqual([
       { id: "dough-penguin", displayName: "Dough Penguin" },
+      { id: "artist-penguin", displayName: "Artist Penguin" },
+      { id: "cleaner-penguin", displayName: "Cleaner Penguin" },
       { id: "dough-penguin-test", displayName: "Dough Penguin Test" }
     ]);
   });
