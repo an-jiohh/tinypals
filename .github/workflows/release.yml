@@ -59,3 +59,13 @@ jobs:
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+          SENTRY_ENVIRONMENT: production
+          VITE_SENTRY_ENVIRONMENT: production
+          SENTRY_UPLOAD_SOURCEMAPS: "true"
+          SENTRY_DISABLED: "false"
+          VITE_SENTRY_DISABLED: "false"
