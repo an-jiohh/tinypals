@@ -1,4 +1,4 @@
-# AGENT.md
+# AGENTS.md
 
 ## Project Intent
 
@@ -12,6 +12,8 @@ dashboard-first productivity app.
 - Ask before adding production dependencies.
 - Keep changes consistent with the existing Electron, React, TypeScript, and
   static asset-pack patterns.
+- Use GitHub Flow: branch from `main`, open a PR, and merge back to `main` only
+  after CI passes.
 - Do not commit real `.env` files, generated local app data, or personal Codex
   environment files.
 - Treat `skills/tinypals-hatch-pet` as optional contributor tooling, not runtime
@@ -22,6 +24,7 @@ dashboard-first productivity app.
 - Overview and setup: `README.md`
 - Runtime architecture: `docs/architecture.md`
 - Feature modification map: `docs/implementation-map.md`
+- Release and Updates: `docs/release.md`
 - UX constraints: `docs/ux-rules.md`
 - Asset-pack workflow: `docs/asset-packs.md`
 - Character/IP safety: `docs/research/tinypals-ip-safety-2026-05-20.md`

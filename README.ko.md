@@ -153,10 +153,14 @@ npm run release:win
 publish 없이 로컬 패키지를 만들려면 `npm run dist:mac`,
 `npm run dist:win`을 사용합니다.
 
+전체 버전 관리, GitHub Releases, 업데이트 metadata, signing, smoke test 절차는
+[릴리스 가이드](docs/release.md)를 확인하세요.
+
 ## 문서
 
 - [아키텍처](docs/architecture.md)
 - [구현 지도](docs/implementation-map.md)
+- [릴리스 가이드](docs/release.md)
 - [UX 규칙](docs/ux-rules.md)
 - [Asset pack 가이드](docs/asset-packs.md)
 - [앱 아이콘 가이드](docs/app-icons.md)

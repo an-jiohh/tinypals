@@ -152,10 +152,14 @@ npm run release:win
 Local package builds without publishing use `npm run dist:mac` and
 `npm run dist:win`.
 
+See [Release guide](docs/release.md) for the full versioning, GitHub Releases,
+update metadata, signing, and smoke-test procedure.
+
 ## Documentation
 
 - [Architecture](docs/architecture.md)
 - [Implementation map](docs/implementation-map.md)
+- [Release guide](docs/release.md)
 - [UX rules](docs/ux-rules.md)
 - [Asset pack guide](docs/asset-packs.md)
 - [App icon guide](docs/app-icons.md)
