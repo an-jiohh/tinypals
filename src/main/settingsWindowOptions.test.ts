@@ -10,4 +10,11 @@ describe("createSettingsWindowOptions", () => {
     expect(options.roundedCorners).toBe(false);
     expect(options.backgroundColor).toBe("#00000000");
   });
+
+  it("uses an in-memory Chromium session partition", () => {
+    const options = createSettingsWindowOptions("/tmp/preload.mjs");
+
+    expect(options.webPreferences?.partition).toBe("tinypals:runtime");
+    expect(options.webPreferences?.partition).not.toMatch(/^persist:/);
+  });
 });

@@ -1,4 +1,5 @@
 import type { BrowserWindowConstructorOptions } from "electron";
+import { TINYPALS_RUNTIME_SESSION_PARTITION } from "./windowSession";
 
 export const SETTINGS_WINDOW_WIDTH = 420;
 export const SETTINGS_WINDOW_HEIGHT = 500;
@@ -26,6 +27,7 @@ export function createSettingsWindowOptions(
     show: false,
     webPreferences: {
       preload: preloadPath,
+      partition: TINYPALS_RUNTIME_SESSION_PARTITION,
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false
