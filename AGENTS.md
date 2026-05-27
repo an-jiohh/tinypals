@@ -14,6 +14,8 @@ dashboard-first productivity app.
   static asset-pack patterns.
 - Use GitHub Flow: branch from `main`, open a PR, and merge back to `main` only
   after CI passes.
+- Do not commit directly on `main` or push directly to `main`. Make changes on
+  `feature/*`, `fix/*`, or `hotfix/*` branches and use a PR.
 - Do not commit real `.env` files, generated local app data, or personal Codex
   environment files.
 - Treat `skills/tinypals-hatch-pet` as optional contributor tooling, not runtime
